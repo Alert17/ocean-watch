@@ -1,4 +1,4 @@
-import { Species, Behavior } from "./types/sighting";
+import { Species, Behavior } from "../types/sighting";
 
 export const SPECIES_LABELS: Record<Species, string> = {
   [Species.WHITE_SHARK]: "Great White Shark",
