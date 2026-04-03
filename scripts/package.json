@@ -1,0 +1,16 @@
+{
+  "name": "oceanwatch-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "create-topic": "tsx create-topic.ts",
+    "create-token": "tsx create-token.ts"
+  },
+  "dependencies": {
+    "@hashgraph/sdk": "^2.81.0",
+    "dotenv": "^17.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}
