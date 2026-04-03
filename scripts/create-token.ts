@@ -10,7 +10,7 @@ import {
 
 async function main() {
   const operatorId = AccountId.fromString(process.env.HEDERA_OPERATOR_ID!);
-  const operatorKey = PrivateKey.fromStringDer(process.env.HEDERA_OPERATOR_KEY!);
+  const operatorKey = PrivateKey.fromStringECDSA(process.env.HEDERA_OPERATOR_KEY!);
   const client = Client.forTestnet().setOperator(operatorId, operatorKey);
 
   const tx = await new TokenCreateTransaction()
