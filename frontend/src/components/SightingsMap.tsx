@@ -53,11 +53,6 @@ function popupContent(s: Sighting): HTMLElement {
     root.appendChild(note);
   }
 
-  const wallet = document.createElement("div");
-  wallet.className = "text-[10px] uppercase tracking-wide text-slate-500";
-  wallet.textContent = `Wallet ${s.wallet}`;
-  root.appendChild(wallet);
-
   return root;
 }
 
