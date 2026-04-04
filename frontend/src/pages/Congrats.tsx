@@ -66,13 +66,13 @@ export function CongratsPage() {
           style={{ animation: "ow-fade-up 0.4s 0.75s both" }}
         >
           <h1 className="font-display text-3xl font-semibold text-foam">
-            Observation envoyée !
+            Sighting submitted!
           </h1>
           <p className="text-balance text-sm leading-relaxed text-slate-400">
-            Merci de contribuer à la conservation des requins à{" "}
+            Thank you for helping protect sharks around{" "}
             <strong className="text-foam">Cozumel</strong>.
             <br />
-            Votre signal sera intégré à l'indexeur Ocean Watch.
+            Your report will be picked up by the Ocean Watch indexer.
           </p>
         </div>
 
@@ -85,13 +85,13 @@ export function CongratsPage() {
             to="/history"
             className="w-full rounded-2xl bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 py-3.5 text-center font-semibold text-abyss-950 shadow-glow transition hover:from-reef-400 hover:to-lagoon-500"
           >
-            Voir mes observations
+            View my sightings
           </Link>
           <Link
             to="/report"
             className="w-full rounded-2xl border border-lagoon-500/30 bg-abyss-800/60 py-3.5 text-center font-medium text-foam transition hover:border-reef-400/40 hover:bg-abyss-800"
           >
-            Nouvelle observation
+            New sighting
           </Link>
         </div>
 
