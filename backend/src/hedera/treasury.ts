@@ -69,9 +69,21 @@ export async function processRedeem(
   const rawAmount = Math.round(tokenAmount * TOKEN_DECIMALS);
 
   const circulatingSupply = await getCirculatingSupply();
+  if (circulatingSupply <= 0) {
+    throw new Error("No tokens in circulation, cannot redeem");
+  }
+
   const treasuryBalance = await getTreasuryBalance();
+  if (treasuryBalance <= 0) {
+    throw new Error("Treasury is empty, cannot redeem");
+  }
+
   const hbarShareRaw = (tokenAmount / circulatingSupply) * treasuryBalance;
   const hbarShare = Math.floor(hbarShareRaw * 1e8) / 1e8; // round down to tinybars
+
+  if (hbarShare <= 0) {
+    throw new Error("Redemption amount too small");
+  }
 
   // 1. Transfer tokens from user to operator (for burning)
   const transferTx = await new TransferTransaction()
