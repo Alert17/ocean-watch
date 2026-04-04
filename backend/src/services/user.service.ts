@@ -1,6 +1,7 @@
 import { prisma } from "../db";
 import { getContributorBalance } from "../hedera";
 import { config } from "../config";
+import { MAX_MIRROR_PAGES } from "../config/constants";
 
 export async function getUserById(id: string) {
   return prisma.user.findUnique({ where: { id } });
@@ -9,8 +10,6 @@ export async function getUserById(id: string) {
 export async function getBalance(wallet: string): Promise<number> {
   return getContributorBalance(wallet);
 }
-
-const MAX_MIRROR_PAGES = 50;
 
 export async function getSightingCount(wallet: string): Promise<number> {
   const baseUrl = `${config.hedera.mirrorNodeUrl}/api/v1/topics/${config.hedera.topicId}/messages`;

@@ -8,7 +8,7 @@ import {
 } from "@hashgraph/sdk";
 import { client, operatorId, tokenId, treasuryAccountId, treasuryKey, platformAccountId } from "./client";
 import { TokenPriceInfo, DonationResult, RedeemResult } from "./types";
-import { TOKEN_DECIMALS, PLATFORM_FEE_PERCENT, TREASURY_PERCENT } from "../config/constants";
+import { TOKEN_DECIMALS, PLATFORM_FEE_PERCENT, TREASURY_PERCENT, PRICE_CACHE_TTL_MS } from "../config/constants";
 
 export async function getTreasuryBalance(): Promise<number> {
   const balance = await new AccountBalanceQuery()
@@ -26,7 +26,6 @@ export async function getCirculatingSupply(): Promise<number> {
   return Number(info.totalSupply) / TOKEN_DECIMALS;
 }
 
-const PRICE_CACHE_TTL_MS = 30_000; // 30 seconds
 let priceCache: { data: TokenPriceInfo; ts: number } | null = null;
 
 export async function getTokenPrice(): Promise<TokenPriceInfo> {

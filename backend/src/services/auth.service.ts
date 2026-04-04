@@ -2,8 +2,24 @@ import { randomBytes } from "node:crypto";
 import { PublicKey } from "@hashgraph/sdk";
 import { prisma } from "../db";
 import { config } from "../config";
+import { CHALLENGE_TTL_MS, CHALLENGE_CLEANUP_INTERVAL_MS } from "../config/constants";
 
-const CHALLENGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+// Periodically delete expired/used challenges
+setInterval(async () => {
+  try {
+    const { count } = await prisma.authChallenge.deleteMany({
+      where: {
+        OR: [
+          { expiresAt: { lt: new Date() } },
+          { used: true },
+        ],
+      },
+    });
+    if (count > 0) console.log(`[auth] Cleaned up ${count} old challenges`);
+  } catch {
+    // non-critical, skip silently
+  }
+}, CHALLENGE_CLEANUP_INTERVAL_MS);
 
 export async function findUserByWallet(wallet: string) {
   return prisma.user.findUnique({ where: { wallet } });

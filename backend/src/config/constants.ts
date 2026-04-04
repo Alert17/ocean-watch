@@ -42,3 +42,21 @@ export const MAX_FILE_SIZE = 100 * 1024 * 1024;
 /** Rate limit: max sightings per time window */
 export const SIGHTING_RATE_LIMIT_MAX = 10;
 export const SIGHTING_RATE_LIMIT_WINDOW = "1 hour";
+
+/** Global rate limit */
+export const GLOBAL_RATE_LIMIT_MAX = 100;
+export const GLOBAL_RATE_LIMIT_WINDOW = "1 minute";
+
+/** Auth challenge TTL and cleanup interval */
+export const CHALLENGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+export const CHALLENGE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+
+/** Mirror Node pagination limit */
+export const MAX_MIRROR_PAGES = 50;
+
+/** Token price cache TTL */
+export const PRICE_CACHE_TTL_MS = 30_000; // 30 seconds
+
+/** Hedera transaction retry */
+export const HEDERA_MAX_RETRIES = 3;
+export const HEDERA_RETRY_BASE_DELAY_MS = 1000;
