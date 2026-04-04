@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
+import multipart from "@fastify/multipart";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import sensible from "./plugins/sensible";
@@ -9,6 +10,7 @@ import { authRoutes } from "./routes/auth";
 import { sightingsRoutes } from "./routes/sightings";
 import { tokenRoutes } from "./routes/token";
 import { userRoutes } from "./routes/user";
+import { uploadRoutes } from "./routes/upload";
 
 const app = Fastify({ logger: true });
 
@@ -37,11 +39,13 @@ app.register(swaggerUi, {
 
 app.register(cors, { origin: true });
 app.register(jwt, { secret: config.jwtSecret });
+app.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max
 app.register(sensible);
 app.register(authRoutes, { prefix: "/auth" });
 app.register(sightingsRoutes, { prefix: "/sightings" });
 app.register(tokenRoutes, { prefix: "/token" });
 app.register(userRoutes, { prefix: "/user" });
+app.register(uploadRoutes, { prefix: "/upload" });
 
 app.get("/health", async () => ({ status: "ok" }));
 

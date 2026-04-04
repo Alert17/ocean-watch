@@ -13,6 +13,11 @@ export const config = {
   jwtSecret: required("JWT_SECRET"),
   databaseUrl: required("DATABASE_URL"),
 
+  pinata: {
+    jwt: required("PINATA_JWT"),
+    gateway: process.env.PINATA_GATEWAY || "gateway.pinata.cloud",
+  },
+
   hedera: {
     operatorId: required("HEDERA_OPERATOR_ID"),
     operatorKey: required("HEDERA_OPERATOR_KEY"),
