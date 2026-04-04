@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "../db";
+import { RegisterBody, LoginBody } from "../types/auth";
 
 const registerSchema = {
   description: "Register a new user by wallet",
@@ -25,15 +26,6 @@ const loginSchema = {
     },
   },
 };
-
-interface RegisterBody {
-  wallet: string;
-  name?: string;
-}
-
-interface LoginBody {
-  wallet: string;
-}
 
 export async function authRoutes(app: FastifyInstance) {
   app.post<{ Body: RegisterBody }>("/register", { schema: registerSchema }, async (request, reply) => {

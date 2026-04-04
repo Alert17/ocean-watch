@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { prisma } from "../db";
 import { config } from "../config";
 import { authenticate } from "../plugins/authenticate";
+import { VerifyBody } from "../types/worldid";
 
 const verifySchema = {
   description: "Verify World ID proof and link to user account",
@@ -18,13 +19,6 @@ const verifySchema = {
     },
   },
 };
-
-interface VerifyBody {
-  proof: string;
-  merkle_root: string;
-  nullifier_hash: string;
-  verification_level: string;
-}
 
 export async function worldIdRoutes(app: FastifyInstance) {
   app.post<{ Body: VerifyBody }>("/verify", { schema: verifySchema, onRequest: [authenticate] }, async (request, reply) => {

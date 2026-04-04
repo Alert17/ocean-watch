@@ -12,6 +12,17 @@ export enum Behavior {
   UNKNOWN = "unknown",
 }
 
+export interface CreateSightingBody {
+  latitude: number;
+  longitude: number;
+  species?: Species;
+  count?: number;
+  behavior?: Behavior;
+  observedAt: string;
+  comment?: string;
+  mediaUrl?: string;
+}
+
 export interface Sighting {
   id: string;
   latitude: number;

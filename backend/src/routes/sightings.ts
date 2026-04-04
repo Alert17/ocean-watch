@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { v4 as uuid } from "uuid";
 import { submitSighting, rewardSighting } from "../hedera";
-import { Species, Behavior, Sighting } from "../types/sighting";
+import { Species, Behavior, Sighting, CreateSightingBody } from "../types/sighting";
 import { DEFAULTS } from "../config/constants";
 import { authenticate } from "../plugins/authenticate";
 
@@ -24,17 +24,6 @@ const createSightingSchema = {
     },
   },
 };
-
-interface CreateSightingBody {
-  latitude: number;
-  longitude: number;
-  species?: Species;
-  count?: number;
-  behavior?: Behavior;
-  observedAt: string;
-  comment?: string;
-  mediaUrl?: string;
-}
 
 export async function sightingsRoutes(app: FastifyInstance) {
   app.post<{ Body: CreateSightingBody }>("/", { schema: createSightingSchema, onRequest: [authenticate] }, async (request, reply) => {
