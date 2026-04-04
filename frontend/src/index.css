@@ -33,13 +33,23 @@
   }
 }
 
-/* MapLibre */
-.maplibregl-ctrl-attrib {
-  @apply text-[10px] opacity-80;
+/* Leaflet — thème marin */
+.leaflet-container {
+  font-family: inherit;
+  background: #0c2744;
+}
+
+.ocean-watch-leaflet-map .leaflet-control-attribution {
+  @apply text-[10px];
   background: rgba(6, 18, 34, 0.85) !important;
   color: #94a3b8 !important;
 }
 
-.maplibregl-ctrl-attrib a {
+.ocean-watch-leaflet-map .leaflet-control-attribution a {
   @apply text-lagoon-400;
+}
+
+.ocean-watch-map-marker {
+  background: transparent !important;
+  border: none !important;
 }

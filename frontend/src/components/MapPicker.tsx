@@ -1,9 +1,8 @@
-import maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
 import type { Zone } from "../graphql/types";
 import { findZoneForPoint } from "../lib/geo";
-import { oceanBasemapStyle } from "../lib/mapStyle";
 
 export type MapPick = {
   lat: number;
@@ -17,26 +16,42 @@ type Props = {
   onChange: (next: MapPick) => void;
 };
 
-const COZUMEL_CENTER: [number, number] = [-86.92, 20.42];
+/** Leaflet attend [lat, lng] */
+const COZUMEL_CENTER: L.LatLngExpression = [20.42, -86.92];
 
-function zonesToFeatureCollection(zones: Zone[]) {
+const zoneStyle: L.PathOptions = {
+  color: "#38bdf8",
+  weight: 1.5,
+  opacity: 0.75,
+  fillColor: "#2dd4bf",
+  fillOpacity: 0.14,
+};
+
+function zonesToFeatureCollection(zones: Zone[]): GeoJSON.FeatureCollection {
   return {
-    type: "FeatureCollection" as const,
+    type: "FeatureCollection",
     features: zones.map((z) => ({
-      type: "Feature" as const,
+      type: "Feature",
       properties: { id: z.id, name: z.name },
       geometry: {
-        type: "Polygon" as const,
+        type: "Polygon",
         coordinates: [z.polygon.map(([lng, lat]) => [lng, lat])],
       },
     })),
   };
 }
 
+const pickIcon = L.divIcon({
+  className: "ocean-watch-map-marker",
+  html: `<div style="width:16px;height:16px;border-radius:9999px;border:2px solid #061222;background:#2dd4bf;box-shadow:0 0 20px -6px rgba(45,212,191,0.35)"></div>`,
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+});
+
 export function MapPicker({ zones, value, onChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
-  const markerRef = useRef<maplibregl.Marker | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
@@ -44,55 +59,31 @@ export function MapPicker({ zones, value, onChange }: Props) {
     const el = containerRef.current;
     if (!el) return;
 
-    const map = new maplibregl.Map({
-      container: el,
-      style: oceanBasemapStyle(),
+    const map = L.map(el, {
       center: COZUMEL_CENTER,
-      zoom: 10.85,
-      touchPitch: false,
-      maxPitch: 0,
+      zoom: 11,
+      zoomControl: true,
     });
 
-    map.addControl(
-      new maplibregl.NavigationControl({ showCompass: false }),
-      "bottom-right",
-    );
-    mapRef.current = map;
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(map);
 
-    const onMapClick = (e: maplibregl.MapMouseEvent) => {
-      const lng = e.lngLat.lng;
-      const lat = e.lngLat.lat;
+    if (zones.length > 0) {
+      L.geoJSON(zonesToFeatureCollection(zones), { style: () => zoneStyle }).addTo(
+        map,
+      );
+    }
+
+    const onMapClick = (e: L.LeafletMouseEvent) => {
+      const { lat, lng } = e.latlng;
       const zoneId = findZoneForPoint(lng, lat, zones);
       onChangeRef.current({ lng, lat, zoneId });
     };
 
-    map.on("load", () => {
-      map.addSource("zones", {
-        type: "geojson",
-        data: zonesToFeatureCollection(zones),
-      });
-      map.addLayer({
-        id: "zones-fill",
-        type: "fill",
-        source: "zones",
-        paint: {
-          "fill-color": "#2dd4bf",
-          "fill-opacity": 0.14,
-        },
-      });
-      map.addLayer({
-        id: "zones-line",
-        type: "line",
-        source: "zones",
-        paint: {
-          "line-color": "#38bdf8",
-          "line-width": 1.6,
-          "line-opacity": 0.75,
-        },
-      });
-    });
-
     map.on("click", onMapClick);
+    mapRef.current = map;
 
     return () => {
       markerRef.current?.remove();
@@ -107,52 +98,29 @@ export function MapPicker({ zones, value, onChange }: Props) {
     const map = mapRef.current;
     if (!map) return;
 
-    const applyData = () => {
-      const src = map.getSource("zones") as maplibregl.GeoJSONSource | undefined;
-      src?.setData(zonesToFeatureCollection(zones));
-    };
+    if (!value) {
+      markerRef.current?.remove();
+      markerRef.current = null;
+      return;
+    }
 
-    if (map.isStyleLoaded()) applyData();
-    else map.once("load", applyData);
-  }, [zones]);
+    const { lat, lng } = value;
+    const latLng: L.LatLngExpression = [lat, lng];
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    const placeMarker = () => {
-      if (!map.isStyleLoaded()) return;
-      if (!value) {
-        markerRef.current?.remove();
-        markerRef.current = null;
-        return;
-      }
-      const { lng, lat } = value;
-      if (!markerRef.current) {
-        const dot = document.createElement("div");
-        dot.className =
-          "h-4 w-4 rounded-full border-2 border-abyss-950 bg-reef-400 shadow-glow";
-        dot.setAttribute("role", "presentation");
-        markerRef.current = new maplibregl.Marker({ element: dot })
-          .setLngLat([lng, lat])
-          .addTo(map);
-      } else {
-        markerRef.current.setLngLat([lng, lat]);
-      }
-    };
-
-    if (map.isStyleLoaded()) placeMarker();
-    else map.once("load", placeMarker);
+    if (!markerRef.current) {
+      markerRef.current = L.marker(latLng, { icon: pickIcon }).addTo(map);
+    } else {
+      markerRef.current.setLatLng(latLng);
+    }
   }, [value]);
 
   return (
     <div
       className="overflow-hidden rounded-2xl border border-lagoon-500/25 shadow-card ring-1 ring-white/5"
-      style={{ touchAction: "none" }}
     >
       <div
         ref={containerRef}
-        className="h-[min(52vh,22rem)] w-full hue-rotate-[12deg] saturate-[0.85] brightness-[0.92] contrast-[1.05]"
+        className="ocean-watch-leaflet-map h-[min(52vh,22rem)] w-full hue-rotate-[12deg] saturate-[0.85] brightness-[0.92] contrast-[1.05]"
         role="application"
         aria-label="Carte des zones d’observation autour de Cozumel"
       />
