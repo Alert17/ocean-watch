@@ -33,8 +33,8 @@ export async function userRoutes(app: FastifyInstance) {
       const balance = await getBalance(wallet);
       return { wallet, balance };
     } catch (err) {
-      app.log.warn({ err, wallet }, "Failed to get balance");
-      return { wallet, balance: "0" };
+      app.log.error({ err, wallet }, "Failed to get balance from Hedera");
+      return reply.serviceUnavailable("Could not fetch balance, try again later");
     }
   });
 

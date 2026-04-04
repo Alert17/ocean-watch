@@ -8,6 +8,7 @@ export interface SightingResult {
   sighting: Sighting;
   sequenceNumber: string | undefined;
   reward: SightingReward | null;
+  rewardError?: string;
 }
 
 export function buildSighting(body: CreateSightingBody, wallet: string): Sighting {
@@ -31,15 +32,17 @@ export async function createSighting(body: CreateSightingBody, wallet: string): 
   const hcsResult = await submitSighting(sighting);
 
   let reward: SightingReward | null = null;
+  let rewardError: string | undefined;
   try {
     reward = await rewardSighting(wallet);
-  } catch {
-    // Reward failure is non-blocking; caller should log
+  } catch (err) {
+    rewardError = err instanceof Error ? err.message : "Unknown reward error";
   }
 
   return {
     sighting,
     sequenceNumber: hcsResult.sequenceNumber,
     reward,
+    rewardError,
   };
 }

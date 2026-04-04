@@ -7,6 +7,7 @@ import { resolvers } from "./resolvers";
 const yoga = createYoga({
   schema: createSchema({ typeDefs, resolvers }),
   graphiql: true,
+  maskedErrors: process.env.NODE_ENV === "production",
 });
 
 const server = createServer(yoga);

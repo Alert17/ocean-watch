@@ -21,8 +21,19 @@ export const typeDefs = /* GraphQL */ `
     hasMore: Boolean!
   }
 
+  input SightingsFilter {
+    species: String
+    behavior: String
+    wallet: String
+    observedAtGt: String
+    observedAtLt: String
+    observedAtGte: String
+    observedAtLte: String
+  }
+
   type Query {
-    sightings(limit: Int = 50, offset: Int = 0): SightingsPage!
+    sightings(limit: Int = 50, offset: Int = 0, filter: SightingsFilter): SightingsPage!
     sighting(id: String!): Sighting
+    sightingsByIds(ids: [String!]!): [Sighting!]!
   }
 `;

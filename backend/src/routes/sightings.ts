@@ -27,8 +27,8 @@ export async function sightingsRoutes(app: FastifyInstance) {
   app.post<{ Body: CreateSightingBody }>("/", { schema: createSightingSchema, onRequest: [authenticate] }, async (request, reply) => {
     const result = await createSighting(request.body, request.user.wallet);
 
-    if (!result.reward) {
-      app.log.warn({ wallet: request.user.wallet }, "Failed to reward sighting");
+    if (result.rewardError) {
+      app.log.warn({ wallet: request.user.wallet, error: result.rewardError }, "Failed to reward sighting");
     }
 
     return reply.code(201).send(result);
