@@ -30,6 +30,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
       PINATA_JWT: ${PINATA_JWT}
       PINATA_GATEWAY: ${PINATA_GATEWAY:-gateway.pinata.cloud}
+      WORLDID_APP_ID: ${WORLDID_APP_ID}
     ports:
       - "127.0.0.1:3001:3001"
 
