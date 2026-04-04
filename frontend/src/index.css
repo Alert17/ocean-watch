@@ -54,6 +54,14 @@
   border: none !important;
 }
 
+.ocean-watch-leaflet-map .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+}
+
+.ocean-watch-leaflet-map .leaflet-popup-content {
+  margin: 10px 12px;
+}
+
 /* ── Congrats page ────────────────────────────────────────── */
 @keyframes ow-scale-in {
   from { transform: scale(0); opacity: 0; }

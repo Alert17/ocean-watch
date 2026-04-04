@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "../components/Layout";
+import { SightingsMap } from "../components/SightingsMap";
 import { behaviorLabel, speciesLabel } from "../constants/fieldbook";
 import { fetchSightings } from "../graphql/api";
 
@@ -20,18 +21,20 @@ export function HistoryPage() {
     <Layout title="History">
       <div className="mt-2 space-y-4">
         <p className="text-sm text-slate-400">
-          Sightings from the indexer (<code className="text-lagoon-400/90">sightings</code> query).
+          Sightings from the indexer (<code className="text-lagoon-400/90">sightings</code> query)
+          — map shows each record at its latitude and longitude.
         </p>
 
         {isPending ? (
-          <ul className="space-y-3" aria-busy>
-            {[1, 2, 3].map((i) => (
-              <li
+          <div className="space-y-3" aria-busy>
+            <div className="h-[min(55vh,24rem)] min-h-[220px] animate-pulse rounded-2xl bg-abyss-800/70" />
+            {[1, 2].map((i) => (
+              <div
                 key={i}
-                className="h-28 animate-pulse rounded-2xl bg-abyss-800/60"
+                className="h-24 animate-pulse rounded-2xl bg-abyss-800/60"
               />
             ))}
-          </ul>
+          </div>
         ) : null}
 
         {isError ? (
@@ -57,49 +60,50 @@ export function HistoryPage() {
         ) : null}
 
         {data && data.length > 0 ? (
-          <ul className="space-y-3">
-            {data.map((s) => (
-              <li
-                key={s.id}
-                className="rounded-2xl border border-lagoon-500/15 bg-abyss-850/70 p-4 shadow-card"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-display text-lg text-foam">
-                    {speciesLabel(s.species)}
-                  </span>
-                  <time
-                    className="text-xs text-lagoon-400/90"
-                    dateTime={s.observedAt}
-                  >
-                    {formatWhen(s.observedAt)}
-                  </time>
-                </div>
-                <p className="mt-1 text-sm text-slate-400">
-                  {s.count} {s.count === 1 ? "individual" : "individuals"} ·{" "}
-                  {behaviorLabel(s.behavior)}
-                </p>
-                <p className="mt-2 text-xs uppercase tracking-wider text-reef-400/90">
-                  Seq. {s.sequenceNumber} · Wallet {s.wallet}
-                </p>
-                <p className="mt-1 font-mono text-[10px] text-slate-500">
-                  {s.latitude.toFixed(4)}°, {s.longitude.toFixed(4)}° · consensus{" "}
-                  {s.consensusTimestamp}
-                </p>
-                {s.comment ? (
-                  <p className="mt-2 border-t border-white/5 pt-2 text-sm text-slate-300">
-                    {s.comment}
+          <>
+            <SightingsMap sightings={data} />
+            <h2 className="font-display text-lg text-reef-300">Details</h2>
+            <ul className="space-y-3">
+              {data.map((s) => (
+                <li
+                  key={s.id}
+                  className="rounded-2xl border border-lagoon-500/15 bg-abyss-850/70 p-4 shadow-card"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="font-display text-lg text-foam">
+                      {speciesLabel(s.species)}
+                    </span>
+                    <time
+                      className="text-xs text-lagoon-400/90"
+                      dateTime={s.observedAt}
+                    >
+                      {formatWhen(s.observedAt)}
+                    </time>
+                  </div>
+                  <p className="mt-1 text-sm text-slate-400">
+                    {s.count} {s.count === 1 ? "individual" : "individuals"} ·{" "}
+                    {behaviorLabel(s.behavior)}
                   </p>
-                ) : null}
-                {s.mediaUrl ? (
-                  <p className="mt-1 text-xs text-lagoon-400">
-                    <a href={s.mediaUrl} className="underline" target="_blank" rel="noreferrer">
-                      Media
-                    </a>
+                  <p className="mt-1 font-mono text-[10px] text-slate-500">
+                    {s.latitude.toFixed(4)}°, {s.longitude.toFixed(4)}° · consensus{" "}
+                    {s.consensusTimestamp}
                   </p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+                  {s.comment ? (
+                    <p className="mt-2 border-t border-white/5 pt-2 text-sm text-slate-300">
+                      {s.comment}
+                    </p>
+                  ) : null}
+                  {s.mediaUrl ? (
+                    <p className="mt-1 text-xs text-lagoon-400">
+                      <a href={s.mediaUrl} className="underline" target="_blank" rel="noreferrer">
+                        Media
+                      </a>
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </>
         ) : null}
       </div>
     </Layout>

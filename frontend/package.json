@@ -9,8 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hashgraph/hedera-wallet-connect": "^1.4.1",
+    "@hashgraph/sdk": "^2.40.0",
     "@hookform/resolvers": "^3.9.1",
     "@tanstack/react-query": "^5.62.8",
+    "@walletconnect/modal": "^2.7.0",
     "@worldcoin/idkit": "^2.4.2",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",

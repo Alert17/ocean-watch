@@ -7,6 +7,11 @@ const KEYS = {
   worldIdVerified: "ow_world_id_verified",
 } as const;
 
+/** Après une connexion WalletConnect Hedera réussie (sans JWT API encore). */
+export function persistConnectedHederaAccount(accountId: string): void {
+  localStorage.setItem(KEYS.wallet, accountId);
+}
+
 export type AuthState = {
   jwt: string | null;
   wallet: string | null;
