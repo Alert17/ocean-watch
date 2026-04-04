@@ -8,11 +8,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  wallet    String   @unique // Hedera Account ID (0.0.xxx)
-  name      String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(uuid())
+  wallet          String   @unique // Hedera Account ID (0.0.xxx)
+  name            String?
+  worldIdHash     String?  @unique @map("worldid_nullifier") // World ID nullifier hash
+  worldIdVerified Boolean  @default(false) @map("worldid_verified")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("users")
 }
