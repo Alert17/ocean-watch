@@ -26,7 +26,14 @@ export async function getCirculatingSupply(): Promise<number> {
   return Number(info.totalSupply) / TOKEN_DECIMALS;
 }
 
+const PRICE_CACHE_TTL_MS = 30_000; // 30 seconds
+let priceCache: { data: TokenPriceInfo; ts: number } | null = null;
+
 export async function getTokenPrice(): Promise<TokenPriceInfo> {
+  if (priceCache && Date.now() - priceCache.ts < PRICE_CACHE_TTL_MS) {
+    return priceCache.data;
+  }
+
   const treasuryBalanceHbar = await getTreasuryBalance();
   const circulatingSupply = await getCirculatingSupply();
 
@@ -34,7 +41,10 @@ export async function getTokenPrice(): Promise<TokenPriceInfo> {
     ? treasuryBalanceHbar / circulatingSupply
     : 0;
 
-  return { treasuryBalanceHbar, circulatingSupply, pricePerToken };
+  const data = { treasuryBalanceHbar, circulatingSupply, pricePerToken };
+  priceCache = { data, ts: Date.now() };
+
+  return data;
 }
 
 export async function processDonation(

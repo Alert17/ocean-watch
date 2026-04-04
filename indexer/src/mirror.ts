@@ -4,6 +4,8 @@ import { Sighting, Species, Behavior, MirrorResponse } from "./types";
 const baseUrl = `${config.hedera.mirrorNodeUrl}/api/v1/topics/${config.hedera.topicId}/messages`;
 
 const CACHE_TTL_MS = 30_000; // 30 seconds
+const MAX_CACHED_SIGHTINGS = 10_000;
+const MAX_MIRROR_PAGES = 100;
 
 let cachedSightings: Sighting[] = [];
 let cacheTimestamp = 0;
@@ -70,8 +72,9 @@ function parseSighting(parsed: Record<string, unknown>, sequenceNumber: number, 
 async function fetchFromMirrorNode(): Promise<Sighting[]> {
   const sightings: Sighting[] = [];
   let url: string | null = baseUrl;
+  let pages = 0;
 
-  while (url) {
+  while (url && pages < MAX_MIRROR_PAGES) {
     let res: Response;
     try {
       res = await fetch(url);
@@ -98,6 +101,12 @@ async function fetchFromMirrorNode(): Promise<Sighting[]> {
     url = data.links?.next
       ? `${config.hedera.mirrorNodeUrl}${data.links.next}`
       : null;
+    pages++;
+  }
+
+  // Keep only latest sightings if we hit the limit
+  if (sightings.length > MAX_CACHED_SIGHTINGS) {
+    return sightings.slice(-MAX_CACHED_SIGHTINGS);
   }
 
   return sightings;

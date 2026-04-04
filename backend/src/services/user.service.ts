@@ -10,13 +10,16 @@ export async function getBalance(wallet: string): Promise<number> {
   return getContributorBalance(wallet);
 }
 
+const MAX_MIRROR_PAGES = 50;
+
 export async function getSightingCount(wallet: string): Promise<number> {
   const baseUrl = `${config.hedera.mirrorNodeUrl}/api/v1/topics/${config.hedera.topicId}/messages`;
 
   let count = 0;
   let nextLink: string | null = baseUrl;
+  let pages = 0;
 
-  while (nextLink) {
+  while (nextLink && pages < MAX_MIRROR_PAGES) {
     const res = await fetch(nextLink);
     if (!res.ok) break;
 
@@ -37,6 +40,7 @@ export async function getSightingCount(wallet: string): Promise<number> {
     nextLink = data.links?.next
       ? `${config.hedera.mirrorNodeUrl}${data.links.next}`
       : null;
+    pages++;
   }
 
   return count;

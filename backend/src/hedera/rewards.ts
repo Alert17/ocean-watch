@@ -8,21 +8,21 @@ import {
 import { client, operatorId, tokenId } from "./client";
 import { SightingReward } from "./types";
 import { REWARD_AMOUNT, TOKEN_DECIMALS } from "../config/constants";
-
-/** Track rewarded sighting IDs to prevent double-rewards on retries */
-const rewardedSightings = new Set<string>();
+import { prisma } from "../db";
+import { withRetry } from "./retry";
 
 async function isTokenAssociated(accountId: AccountId): Promise<boolean> {
   const balance = await new AccountBalanceQuery()
     .setAccountId(accountId)
     .execute(client);
 
-  return balance.tokens?.get(tokenId) !== null;
+  return balance.tokens?.get(tokenId) !== undefined;
 }
 
 export async function rewardSighting(userAccountId: string, sightingId: string): Promise<SightingReward> {
-  // Idempotency: skip if already rewarded
-  if (rewardedSightings.has(sightingId)) {
+  // Idempotency: check DB for existing reward
+  const existing = await prisma.reward.findUnique({ where: { sightingId } });
+  if (existing) {
     throw new Error(`Sighting ${sightingId} already rewarded`);
   }
 
@@ -35,24 +35,27 @@ export async function rewardSighting(userAccountId: string, sightingId: string):
   }
 
   // 1. Mint tokens to treasury
-  const mintTx = await new TokenMintTransaction()
-    .setTokenId(tokenId)
-    .setAmount(REWARD_AMOUNT)
-    .setTransactionMemo(`mint:${sightingId}`)
-    .execute(client);
-
-  await mintTx.getReceipt(client);
+  await withRetry(async () => {
+    const mintTx = await new TokenMintTransaction()
+      .setTokenId(tokenId)
+      .setAmount(REWARD_AMOUNT)
+      .setTransactionMemo(`mint:${sightingId}`)
+      .execute(client);
+    await mintTx.getReceipt(client);
+  }, "mintReward");
 
   // 2. Transfer from treasury to user — rollback mint if transfer fails
-  let transferTx;
+  let transferTxId: string;
   try {
-    transferTx = await new TransferTransaction()
-      .addTokenTransfer(tokenId, operatorId, -REWARD_AMOUNT)
-      .addTokenTransfer(tokenId, user, REWARD_AMOUNT)
-      .setTransactionMemo(`reward:${sightingId}`)
-      .execute(client);
-
-    await transferTx.getReceipt(client);
+    transferTxId = await withRetry(async () => {
+      const tx = await new TransferTransaction()
+        .addTokenTransfer(tokenId, operatorId, -REWARD_AMOUNT)
+        .addTokenTransfer(tokenId, user, REWARD_AMOUNT)
+        .setTransactionMemo(`reward:${sightingId}`)
+        .execute(client);
+      await tx.getReceipt(client);
+      return tx.transactionId.toString();
+    }, "transferReward");
   } catch (err) {
     // Rollback: burn minted tokens to keep supply consistent
     try {
@@ -67,12 +70,20 @@ export async function rewardSighting(userAccountId: string, sightingId: string):
     throw err;
   }
 
-  rewardedSightings.add(sightingId);
+  // 3. Record reward in DB for idempotency
+  await prisma.reward.create({
+    data: {
+      sightingId,
+      wallet: userAccountId,
+      amount: REWARD_AMOUNT,
+      transactionId: transferTxId,
+    },
+  });
 
   return {
     tokensMinted: REWARD_AMOUNT / TOKEN_DECIMALS,
     recipientAccount: userAccountId,
-    transactionId: transferTx.transactionId.toString(),
+    transactionId: transferTxId,
   };
 }
 

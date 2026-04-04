@@ -20,6 +20,17 @@ model User {
   @@map("users")
 }
 
+model Reward {
+  id            String   @id @default(uuid())
+  sightingId    String   @unique @map("sighting_id")
+  wallet        String
+  amount        Int      // token units (with decimals)
+  transactionId String   @map("transaction_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("rewards")
+}
+
 model AuthChallenge {
   id        String   @id @default(uuid())
   wallet    String   // Hedera Account ID
