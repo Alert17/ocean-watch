@@ -1,53 +1,55 @@
 import { FastifyInstance } from "fastify";
-import { RegisterBody, LoginBody } from "../types/auth";
-import { findUserByWallet, createUser } from "../services/auth.service";
+import { ChallengeBody, VerifySignatureBody } from "../types/auth";
+import { findUserByWallet, createUser, createChallenge, verifyChallenge } from "../services/auth.service";
 
-const registerSchema = {
-  description: "Register a new user by wallet",
+const challengeSchema = {
+  description: "Request a challenge nonce for wallet verification",
   tags: ["auth"],
   body: {
     type: "object",
     required: ["wallet"],
     properties: {
       wallet: { type: "string", description: "Hedera Account ID (0.0.xxx)" },
+    },
+  },
+};
+
+const verifySchema = {
+  description: "Verify signed challenge and register/login",
+  tags: ["auth"],
+  body: {
+    type: "object",
+    required: ["wallet", "nonce", "signature"],
+    properties: {
+      wallet: { type: "string", description: "Hedera Account ID (0.0.xxx)" },
+      nonce: { type: "string" },
+      signature: { type: "string", description: "Hex-encoded signature of the challenge message" },
       name: { type: "string" },
     },
   },
 };
 
-const loginSchema = {
-  description: "Login by wallet, returns JWT",
-  tags: ["auth"],
-  body: {
-    type: "object",
-    required: ["wallet"],
-    properties: {
-      wallet: { type: "string", description: "Hedera Account ID (0.0.xxx)" },
-    },
-  },
-};
-
 export async function authRoutes(app: FastifyInstance) {
-  app.post<{ Body: RegisterBody }>("/register", { schema: registerSchema }, async (request, reply) => {
-    const { wallet, name } = request.body;
-
-    const existing = await findUserByWallet(wallet);
-    if (existing) {
-      return reply.conflict("User with this wallet already exists");
-    }
-
-    const user = await createUser(wallet, name);
-    const token = app.jwt.sign({ sub: user.id, wallet: user.wallet });
-
-    return reply.code(201).send({ user, token });
-  });
-
-  app.post<{ Body: LoginBody }>("/login", { schema: loginSchema }, async (request, reply) => {
+  app.post<{ Body: ChallengeBody }>("/challenge", { schema: challengeSchema }, async (request, reply) => {
     const { wallet } = request.body;
 
-    const user = await findUserByWallet(wallet);
+    const challenge = await createChallenge(wallet);
+
+    return reply.send(challenge);
+  });
+
+  app.post<{ Body: VerifySignatureBody }>("/verify", { schema: verifySchema }, async (request, reply) => {
+    const { wallet, nonce, signature, name } = request.body;
+
+    const result = await verifyChallenge(wallet, nonce, signature);
+    if (!result.valid) {
+      return reply.unauthorized("Invalid signature or expired challenge");
+    }
+
+    // Register or login
+    let user = await findUserByWallet(wallet);
     if (!user) {
-      return reply.notFound("User not found, register first");
+      user = await createUser(wallet, name, result.publicKeyStr);
     }
 
     const token = app.jwt.sign({ sub: user.id, wallet: user.wallet });

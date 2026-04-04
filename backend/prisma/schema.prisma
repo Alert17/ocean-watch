@@ -11,10 +11,22 @@ model User {
   id              String   @id @default(uuid())
   wallet          String   @unique // Hedera Account ID (0.0.xxx)
   name            String?
+  publicKey       String?  @map("public_key") // Hedera public key (cached from Mirror Node)
   worldIdHash     String?  @unique @map("worldid_nullifier") // World ID nullifier hash
   worldIdVerified Boolean  @default(false) @map("worldid_verified")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model AuthChallenge {
+  id        String   @id @default(uuid())
+  wallet    String   // Hedera Account ID
+  nonce     String   @unique
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("auth_challenges")
 }
