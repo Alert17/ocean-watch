@@ -1,11 +1,20 @@
 import type { Sighting } from "../graphql/types";
 
-/** Mock sightings for the Map page — real data will replace these once the indexer is live. */
+/**
+ * Mock sightings for the Map page — real data will replace these once the indexer is live.
+ *
+ * All "sea" entries were verified against the COZUMEL_LAND_GEOJSON polygon
+ * to confirm they fall in the water.
+ *
+ * The last entry (tx-LAND) is intentionally placed on Isla Cozumel to
+ * exercise the land-validation filter: it must be rejected before display.
+ */
 export const MOCK_MAP_SIGHTINGS: Sighting[] = [
+  // ── Cozumel Channel (west — leeward side) ─────────────────────────────
   {
     id: "tx-0001",
-    latitude: 20.455,
-    longitude: -87.02,
+    latitude: 20.44,
+    longitude: -87.20,
     species: "nurse_shark",
     count: 3,
     behavior: "resting",
@@ -19,8 +28,8 @@ export const MOCK_MAP_SIGHTINGS: Sighting[] = [
   },
   {
     id: "tx-0002",
-    latitude: 20.38,
-    longitude: -86.84,
+    latitude: 20.35,
+    longitude: -87.30,
     species: "caribbean_reef_shark",
     count: 2,
     behavior: "hunting",
@@ -34,8 +43,8 @@ export const MOCK_MAP_SIGHTINGS: Sighting[] = [
   },
   {
     id: "tx-0003",
-    latitude: 20.31,
-    longitude: -86.98,
+    latitude: 20.50,
+    longitude: -87.15,
     species: "bull_shark",
     count: 1,
     behavior: "migrating",
@@ -47,10 +56,11 @@ export const MOCK_MAP_SIGHTINGS: Sighting[] = [
     sequenceNumber: 14,
     consensusTimestamp: "1775589000.000000000",
   },
+  // ── Caribbean Sea (east — windward side) ──────────────────────────────
   {
     id: "tx-0004",
-    latitude: 20.49,
-    longitude: -86.78,
+    latitude: 20.40,
+    longitude: -86.58,
     species: "hammerhead_shark",
     count: 4,
     behavior: "feeding",
@@ -64,8 +74,8 @@ export const MOCK_MAP_SIGHTINGS: Sighting[] = [
   },
   {
     id: "tx-0005",
-    latitude: 20.43,
-    longitude: -86.92,
+    latitude: 20.50,
+    longitude: -86.65,
     species: "tiger_shark",
     count: 1,
     behavior: "resting",
@@ -79,8 +89,8 @@ export const MOCK_MAP_SIGHTINGS: Sighting[] = [
   },
   {
     id: "tx-0006",
-    latitude: 20.35,
-    longitude: -87.05,
+    latitude: 20.32,
+    longitude: -86.62,
     species: "great_hammerhead_shark",
     count: 1,
     behavior: "migrating",
@@ -92,10 +102,11 @@ export const MOCK_MAP_SIGHTINGS: Sighting[] = [
     sequenceNumber: 17,
     consensusTimestamp: "1775718000.000000000",
   },
+  // ── North of island ────────────────────────────────────────────────────
   {
     id: "tx-0007",
-    latitude: 20.52,
-    longitude: -86.95,
+    latitude: 20.65,
+    longitude: -86.90,
     species: "nurse_shark",
     count: 2,
     behavior: "mating",
@@ -107,10 +118,11 @@ export const MOCK_MAP_SIGHTINGS: Sighting[] = [
     sequenceNumber: 18,
     consensusTimestamp: "1775804000.000000000",
   },
+  // ── South of island ────────────────────────────────────────────────────
   {
     id: "tx-0008",
-    latitude: 20.415,
-    longitude: -86.88,
+    latitude: 20.20,
+    longitude: -87.00,
     species: "unknown",
     count: 1,
     behavior: "unknown",
@@ -121,5 +133,23 @@ export const MOCK_MAP_SIGHTINGS: Sighting[] = [
     wallet: "0.0.1234567",
     sequenceNumber: 19,
     consensusTimestamp: "1775840000.000000000",
+  },
+  // ── Intentionally invalid record (on land) — validates the filter ──────
+  // Coordinates placed inside the Cozumel island polygon (~centre of island).
+  // classifySightings() must catch this and exclude it from the map display.
+  {
+    id: "tx-LAND",
+    latitude: 20.43,
+    longitude: -86.93,
+    species: "nurse_shark",
+    count: 1,
+    behavior: "resting",
+    observedAt: "2026-04-04T10:00:00.000Z",
+    createdAt: "2026-04-04T10:01:00.000Z",
+    comment: "BAD DATA — coordinates on land, should be filtered out.",
+    mediaUrl: null,
+    wallet: "0.0.0000001",
+    sequenceNumber: 99,
+    consensusTimestamp: "1775999000.000000000",
   },
 ];

@@ -4,6 +4,10 @@
  * Data: tries the GraphQL indexer first; falls back to MOCK_MAP_SIGHTINGS.
  * Filters (date + species): UI-only for now, will wire to the indexer once
  * the API supports filter params.
+ *
+ * Land validation: every sighting is checked against the Cozumel land
+ * polygon (COZUMEL_LAND_GEOJSON) before being rendered. Sightings whose
+ * coordinates fall on land are rejected and counted in a warning badge.
  */
 
 import L from "leaflet";
@@ -12,8 +16,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "../components/Layout";
 import { BEHAVIOR_OPTIONS, SPECIES_OPTIONS } from "../constants/fieldbook";
+import { COZUMEL_LAND_GEOJSON } from "../data/cozumelLandGeoJSON";
 import { MOCK_MAP_SIGHTINGS } from "../data/mockMapSightings";
 import type { Sighting } from "../graphql/types";
+import { classifySightings } from "../lib/landValidator";
 
 // ── Map constants ──────────────────────────────────────────────────────────
 
@@ -246,8 +252,8 @@ export function MapPage() {
   // Data: use mock sightings (swap for fetchSightings() once indexer is live)
   const allSightings = MOCK_MAP_SIGHTINGS;
 
-  // Apply filters client-side on mock data
-  const filtered = useMemo(() => {
+  // Step 1 — apply date/species filters
+  const afterFilters = useMemo(() => {
     const cutoff = cutoffDate(dateRange);
     return allSightings.filter((s) => {
       if (cutoff && new Date(s.observedAt) < cutoff) return false;
@@ -255,6 +261,13 @@ export function MapPage() {
       return true;
     });
   }, [allSightings, dateRange, speciesFilter]);
+
+  // Step 2 — land / sea validation: only sea sightings are shown on the map.
+  // Rejected entries (on-land coordinates) are counted and reported to the user.
+  const { sea: filtered, rejected: landRejected } = useMemo(
+    () => classifySightings(afterFilters, COZUMEL_LAND_GEOJSON),
+    [afterFilters],
+  );
 
   return (
     <Layout title="Shark Map">
@@ -305,14 +318,34 @@ export function MapPage() {
           </div>
         </div>
 
-        {/* ── Sighting count badge ────────────────────────────── */}
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-reef-500/20 px-2 text-xs font-semibold text-reef-300">
-            {filtered.length}
-          </span>
-          <span className="text-xs text-slate-500">
-            {filtered.length === 1 ? "sighting" : "sightings"} matching filters
-          </span>
+        {/* ── Count + land-rejection banner ──────────────────── */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-reef-500/20 px-2 text-xs font-semibold text-reef-300">
+              {filtered.length}
+            </span>
+            <span className="text-xs text-slate-500">
+              {filtered.length === 1 ? "sighting" : "sightings"} in sea
+            </span>
+          </div>
+
+          {/* Land-rejection warning — only visible when bad data is present */}
+          {landRejected.length > 0 && (
+            <div
+              className="flex items-start gap-2 rounded-xl border border-coral-500/30 bg-coral-500/10 px-3 py-2.5 text-xs text-coral-300"
+              role="alert"
+            >
+              <span className="mt-0.5 shrink-0" aria-hidden>⚠</span>
+              <span>
+                <strong>{landRejected.length}</strong>{" "}
+                {landRejected.length === 1 ? "sighting was" : "sightings were"} excluded
+                — coordinates fall on land and cannot represent a valid shark observation.
+                {landRejected.some((r) => r.snapped !== null) && (
+                  <> Nearest sea position was found but the original record is not shown to preserve data integrity.</>
+                )}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* ── World map ──────────────────────────────────────── */}
