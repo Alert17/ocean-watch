@@ -11,6 +11,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
     "@tanstack/react-query": "^5.62.8",
+    "@worldcoin/idkit": "^2.4.2",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
     "leaflet": "^1.9.4",

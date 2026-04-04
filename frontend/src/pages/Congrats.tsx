@@ -81,27 +81,17 @@ export function CongratsPage() {
           className="flex w-full flex-col gap-3"
           style={{ animation: "ow-fade-up 0.4s 0.95s both" }}
         >
-          {/*
-           * TODO: replace these href targets with real auth routes once
-           * Hedera wallet connect / login flow is implemented.
-           */}
           <Link
-            to="/my-account"
+            to="/history"
             className="w-full rounded-2xl bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 py-3.5 text-center font-semibold text-abyss-950 shadow-glow transition hover:from-reef-400 hover:to-lagoon-500"
           >
-            Se connecter
+            Voir mes observations
           </Link>
           <Link
-            to="/my-account"
+            to="/report"
             className="w-full rounded-2xl border border-lagoon-500/30 bg-abyss-800/60 py-3.5 text-center font-medium text-foam transition hover:border-reef-400/40 hover:bg-abyss-800"
           >
-            Créer un compte
-          </Link>
-          <Link
-            to="/"
-            className="text-sm text-slate-500 underline-offset-2 hover:text-slate-400 hover:underline"
-          >
-            Retour à l'accueil
+            Nouvelle observation
           </Link>
         </div>
 

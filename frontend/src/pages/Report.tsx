@@ -7,8 +7,9 @@ import { Layout } from "../components/Layout";
 import { MapPicker, type MapPick } from "../components/MapPicker";
 import { BEHAVIOR_OPTIONS, SPECIES_OPTIONS } from "../constants/fieldbook";
 import { MARINE_ZONES } from "../data/marineZones";
+import { useAuth } from "../hooks/useAuth";
+import { submitSightingToApi } from "../lib/api";
 import { toDatetimeLocalValue } from "../lib/datetime";
-import { submitSighting } from "../lib/submitSighting";
 
 const speciesValues = SPECIES_OPTIONS.map((o) => o.value) as [string, ...string[]];
 const behaviorValues = BEHAVIOR_OPTIONS.map((o) => o.value) as [string, ...string[]];
@@ -40,6 +41,13 @@ type MediaItem = {
 
 export function ReportPage() {
   const navigate = useNavigate();
+  const auth = useAuth();
+
+  // Redirect to account/login page if JWT or World ID is missing.
+  useEffect(() => {
+    if (!auth.isReady) navigate("/my-account", { replace: true });
+  }, [auth.isReady, navigate]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
 
@@ -83,36 +91,36 @@ export function ReportPage() {
     setValue("zoneId", pick.zoneId ?? "", { shouldValidate: true });
   };
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const onSubmit = handleSubmit(async (values) => {
+    if (!auth.jwt) {
+      navigate("/my-account", { replace: true });
+      return;
+    }
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
-      await submitSighting({
-        latitude: values.latitude,
-        longitude: values.longitude,
-        species: values.species,
-        count: values.count,
-        behavior: values.behavior,
-        observedAt: new Date(values.observedAt).toISOString(),
-        comment: values.comment || undefined,
-        /**
-         * TODO (backend): upload selected files to IPFS and pass the
-         * resulting URL here. Backend expects an IPFS URL string in
-         * `mediaUrl`. File upload is not yet supported by the backend —
-         * see backend/src/routes/sightings.ts.
-         */
-        mediaUrl: undefined,
-        /**
-         * TODO (auth): replace with the authenticated Hedera Account ID
-         * retrieved from the wallet-connect flow (see /my-account page).
-         */
-        wallet: "0.0.0",
-      });
-    } catch {
-      // Backend may not be running locally (requires Hedera credentials).
-      // The UI flow continues regardless — submission is mocked.
+      await submitSightingToApi(
+        {
+          latitude: values.latitude,
+          longitude: values.longitude,
+          species: values.species,
+          count: values.count,
+          behavior: values.behavior,
+          observedAt: new Date(values.observedAt).toISOString(),
+          comment: values.comment || undefined,
+          // TODO: upload files to IPFS and pass the resulting URL here.
+          // Backend accepts an IPFS URL string in `mediaUrl`.
+          mediaUrl: undefined,
+        },
+        auth.jwt,
+      );
+      navigate("/congrats");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Erreur lors de la soumission.");
     } finally {
       setIsSubmitting(false);
-      navigate("/congrats");
     }
   });
 
@@ -333,6 +341,13 @@ export function ReportPage() {
               </div>
             )}
           </div>
+
+          {/* ── Erreur de soumission ─────────────────────────── */}
+          {submitError ? (
+            <p className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-300" role="alert">
+              {submitError}
+            </p>
+          ) : null}
 
           {/* ── Bouton submit ────────────────────────────────── */}
           <button
