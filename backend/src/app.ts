@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import sensible from "./plugins/sensible";
@@ -21,6 +22,7 @@ app.register(swaggerUi, {
   routePrefix: "/docs",
 });
 
+app.register(cors, { origin: true });
 app.register(sensible);
 app.register(sightingsRoutes, { prefix: "/sightings" });
 app.register(tokenRoutes, { prefix: "/token" });
