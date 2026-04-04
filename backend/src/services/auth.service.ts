@@ -50,7 +50,7 @@ export async function verifyChallenge(
   const signatureBytes = new Uint8Array(Buffer.from(signature, "hex"));
 
   try {
-    const publicKey = accountKey.type === "ED25519"
+    const publicKey = accountKey._type === "ED25519"
       ? PublicKey.fromStringED25519(accountKey.key)
       : PublicKey.fromStringECDSA(accountKey.key);
 
@@ -71,7 +71,7 @@ export async function verifyChallenge(
 }
 
 interface MirrorAccountKey {
-  type: string;
+  _type: string;
   key: string;
 }
 
@@ -83,10 +83,10 @@ async function fetchAccountKey(wallet: string): Promise<MirrorAccountKey | null>
     if (!res.ok) return null;
 
     const data = await res.json() as { key?: MirrorAccountKey };
-    if (!data.key?.key || !data.key?.type) return null;
+    if (!data.key?.key || !data.key?._type) return null;
 
     // Only simple key types supported (no KeyList/ThresholdKey)
-    if (data.key.type !== "ED25519" && data.key.type !== "ECDSA_SECP256K1") {
+    if (data.key._type !== "ED25519" && data.key._type !== "ECDSA_SECP256K1") {
       return null;
     }
 
