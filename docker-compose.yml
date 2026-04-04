@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-oceanwatch}
+      POSTGRES_USER: ${POSTGRES_USER:-oceanwatch}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-oceanwatch}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-oceanwatch}
+      HEDERA_OPERATOR_ID: ${HEDERA_OPERATOR_ID}
+      HEDERA_OPERATOR_KEY: ${HEDERA_OPERATOR_KEY}
+      HEDERA_TOPIC_ID: ${HEDERA_TOPIC_ID}
+    ports:
+      - "127.0.0.1:3001:3001"
+
+  indexer:
+    build:
+      context: ./indexer
+    restart: unless-stopped
+    environment:
+      PORT: 3002
+      HEDERA_TOPIC_ID: ${HEDERA_TOPIC_ID}
+      HEDERA_MIRROR_NODE_URL: ${HEDERA_MIRROR_NODE_URL:-https://testnet.mirrornode.hedera.com}
+    ports:
+      - "127.0.0.1:3002:3002"
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - indexer
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+
+volumes:
+  pgdata:
