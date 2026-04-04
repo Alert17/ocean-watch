@@ -10,10 +10,14 @@ function required(name: string): string {
 
 export const config = {
   port: Number(process.env.PORT) || 3001,
+  jwtSecret: required("JWT_SECRET"),
+  databaseUrl: required("DATABASE_URL"),
 
   hedera: {
     operatorId: required("HEDERA_OPERATOR_ID"),
     operatorKey: required("HEDERA_OPERATOR_KEY"),
     topicId: required("HEDERA_TOPIC_ID"),
+    tokenId: required("HEDERA_TOKEN_ID"),
+    platformAccountId: required("HEDERA_PLATFORM_ACCOUNT_ID"),
   },
 } as const;
