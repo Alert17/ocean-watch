@@ -13,7 +13,7 @@ import { tokenRoutes } from "./routes/token";
 import { userRoutes } from "./routes/user";
 import { uploadRoutes } from "./routes/upload";
 import { worldIdRoutes } from "./routes/worldid";
-import { MAX_FILE_SIZE } from "./config/constants";
+import { MAX_FILE_SIZE, GLOBAL_RATE_LIMIT_MAX, GLOBAL_RATE_LIMIT_WINDOW } from "./config/constants";
 import { prisma } from "./db";
 
 const app = Fastify({ logger: true });
@@ -42,7 +42,7 @@ app.register(swaggerUi, {
 });
 
 app.register(cors, { origin: true });
-app.register(rateLimit, { max: 100, timeWindow: "1 minute" });
+app.register(rateLimit, { max: GLOBAL_RATE_LIMIT_MAX, timeWindow: GLOBAL_RATE_LIMIT_WINDOW });
 app.register(jwt, { secret: config.jwtSecret });
 app.register(multipart, { limits: { fileSize: MAX_FILE_SIZE } });
 app.register(sensible);

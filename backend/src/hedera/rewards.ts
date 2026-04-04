@@ -11,7 +11,8 @@ import { REWARD_AMOUNT, TOKEN_DECIMALS } from "../config/constants";
 import { prisma } from "../db";
 import { withRetry } from "./retry";
 
-async function isTokenAssociated(accountId: AccountId): Promise<boolean> {
+export async function isTokenAssociated(accountIdOrString: AccountId | string): Promise<boolean> {
+  const accountId = typeof accountIdOrString === "string" ? AccountId.fromString(accountIdOrString) : accountIdOrString;
   const balance = await new AccountBalanceQuery()
     .setAccountId(accountId)
     .execute(client);

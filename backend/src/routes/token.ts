@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import {
   getTokenPrice,
   getContributorBalance,
+  isTokenAssociated,
   processDonation,
   processRedeem,
 } from "../hedera";
@@ -34,6 +35,22 @@ export async function tokenRoutes(app: FastifyInstance) {
   }, async (request) => {
     const balance = await getContributorBalance(request.params.accountId);
     return { accountId: request.params.accountId, balance };
+  });
+
+  app.get<{ Params: { accountId: string } }>("/:accountId/associated", {
+    schema: {
+      description: "Check if account has SHARKY token associated",
+      tags: ["token"],
+      params: {
+        type: "object",
+        properties: {
+          accountId: { type: "string", pattern: "^0\\.0\\.\\d+$" },
+        },
+      },
+    },
+  }, async (request) => {
+    const associated = await isTokenAssociated(request.params.accountId);
+    return { accountId: request.params.accountId, associated };
   });
 
   app.post<{ Body: { donorAccountId: string; amountHbar: number } }>("/donate", {
