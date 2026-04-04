@@ -5,7 +5,7 @@ import {
   AccountBalanceQuery,
   AccountId,
 } from "@hashgraph/sdk";
-import { client, operatorId, tokenId } from "./client";
+import { client, tokenId, treasuryAccountId, treasuryKey } from "./client";
 import { SightingReward } from "./types";
 import { REWARD_AMOUNT, TOKEN_DECIMALS } from "../config/constants";
 import { prisma } from "../db";
@@ -50,12 +50,14 @@ export async function rewardSighting(userAccountId: string, sightingId: string):
   try {
     transferTxId = await withRetry(async () => {
       const tx = await new TransferTransaction()
-        .addTokenTransfer(tokenId, operatorId, -REWARD_AMOUNT)
+        .addTokenTransfer(tokenId, treasuryAccountId, -REWARD_AMOUNT)
         .addTokenTransfer(tokenId, user, REWARD_AMOUNT)
         .setTransactionMemo(`reward:${sightingId}`)
-        .execute(client);
-      await tx.getReceipt(client);
-      return tx.transactionId.toString();
+        .freezeWith(client);
+      const signed = await tx.sign(treasuryKey);
+      const executed = await signed.execute(client);
+      await executed.getReceipt(client);
+      return executed.transactionId.toString();
     }, "transferReward");
   } catch (err) {
     // Rollback: burn minted tokens to keep supply consistent
