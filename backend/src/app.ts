@@ -39,7 +39,7 @@ app.register(swaggerUi, {
 
 app.register(cors, { origin: true });
 app.register(jwt, { secret: config.jwtSecret });
-app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB max
+app.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max
 app.register(sensible);
 app.register(authRoutes, { prefix: "/auth" });
 app.register(sightingsRoutes, { prefix: "/sightings" });
