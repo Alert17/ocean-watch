@@ -161,8 +161,12 @@ export function WalletAuthProvider({ children }: { children: ReactNode }) {
       message: challenge.message,
     });
 
-    // 4. Extract raw signature bytes from the signatureMap
-    const signatureMapBase64 = signResult.signatureMap;
+    // 4. Extract raw signature bytes from the signatureMap.
+    // The connector's `signMessage` unwraps the JSON-RPC envelope and returns
+    // the `{ signatureMap }` shape directly, but the library's TS types still
+    // describe the wrapped `{ result: { signatureMap } }` form. Cast to reach
+    // the runtime field without blocking tsc.
+    const signatureMapBase64 = (signResult as unknown as { signatureMap: string }).signatureMap;
     const signatureMap = base64StringToSignatureMap(signatureMapBase64);
     const signatureBytes = extractFirstSignature(signatureMap);
 
