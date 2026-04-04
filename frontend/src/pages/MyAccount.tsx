@@ -171,6 +171,25 @@ export function MyAccountPage() {
             )}
           </IDKitWidget>
 
+          {/* ── Dev-only mock bypass ──────────────────────── */}
+          {import.meta.env.DEV && (
+            <button
+              type="button"
+              onClick={onWorldIdSuccess}
+              className="w-full rounded-2xl border border-dashed border-lagoon-500/30 bg-abyss-900/60 py-3 text-sm font-medium text-lagoon-400/70 transition hover:border-lagoon-500/60 hover:text-lagoon-300"
+            >
+              ⚙ Mock World ID (dev only)
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={auth.logout}
+            className="w-full rounded-2xl border border-slate-700 bg-abyss-850 py-3 text-sm font-medium text-slate-400 transition hover:border-coral-500/40 hover:text-coral-300"
+          >
+            Se déconnecter
+          </button>
+
           <p className="text-center text-xs text-slate-600">
             World ID protège votre vie privée via une preuve à divulgation nulle.
             Aucune donnée personnelle n'est partagée.
