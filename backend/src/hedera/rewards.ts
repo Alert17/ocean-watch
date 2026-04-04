@@ -1,36 +1,76 @@
 import {
   TokenMintTransaction,
+  TokenBurnTransaction,
   TransferTransaction,
   AccountBalanceQuery,
   AccountId,
 } from "@hashgraph/sdk";
 import { client, operatorId, tokenId } from "./client";
 import { SightingReward } from "./types";
+import { REWARD_AMOUNT, TOKEN_DECIMALS } from "../config/constants";
 
-const REWARD_AMOUNT = 10_00; // 10.00 OCEAN (decimals = 2)
-const DECIMALS = 100;
+/** Track rewarded sighting IDs to prevent double-rewards on retries */
+const rewardedSightings = new Set<string>();
 
-export async function rewardSighting(userAccountId: string): Promise<SightingReward> {
+async function isTokenAssociated(accountId: AccountId): Promise<boolean> {
+  const balance = await new AccountBalanceQuery()
+    .setAccountId(accountId)
+    .execute(client);
+
+  return balance.tokens?.get(tokenId) !== null;
+}
+
+export async function rewardSighting(userAccountId: string, sightingId: string): Promise<SightingReward> {
+  // Idempotency: skip if already rewarded
+  if (rewardedSightings.has(sightingId)) {
+    throw new Error(`Sighting ${sightingId} already rewarded`);
+  }
+
+  const user = AccountId.fromString(userAccountId);
+
+  // 0. Check token association
+  const associated = await isTokenAssociated(user);
+  if (!associated) {
+    throw new Error(`Token not associated for account ${userAccountId}`);
+  }
+
   // 1. Mint tokens to treasury
   const mintTx = await new TokenMintTransaction()
     .setTokenId(tokenId)
     .setAmount(REWARD_AMOUNT)
+    .setTransactionMemo(`mint:${sightingId}`)
     .execute(client);
 
   await mintTx.getReceipt(client);
 
-  // 2. Transfer from treasury to user
-  const user = AccountId.fromString(userAccountId);
+  // 2. Transfer from treasury to user — rollback mint if transfer fails
+  let transferTx;
+  try {
+    transferTx = await new TransferTransaction()
+      .addTokenTransfer(tokenId, operatorId, -REWARD_AMOUNT)
+      .addTokenTransfer(tokenId, user, REWARD_AMOUNT)
+      .setTransactionMemo(`reward:${sightingId}`)
+      .execute(client);
 
-  const transferTx = await new TransferTransaction()
-    .addTokenTransfer(tokenId, operatorId, -REWARD_AMOUNT)
-    .addTokenTransfer(tokenId, user, REWARD_AMOUNT)
-    .execute(client);
+    await transferTx.getReceipt(client);
+  } catch (err) {
+    // Rollback: burn minted tokens to keep supply consistent
+    try {
+      const burnTx = await new TokenBurnTransaction()
+        .setTokenId(tokenId)
+        .setAmount(REWARD_AMOUNT)
+        .execute(client);
+      await burnTx.getReceipt(client);
+    } catch {
+      // Burn failed — supply is inconsistent, needs manual intervention
+    }
+    throw err;
+  }
 
-  await transferTx.getReceipt(client);
+  rewardedSightings.add(sightingId);
 
   return {
-    tokensMinted: REWARD_AMOUNT / DECIMALS,
+    tokensMinted: REWARD_AMOUNT / TOKEN_DECIMALS,
     recipientAccount: userAccountId,
     transactionId: transferTx.transactionId.toString(),
   };
@@ -42,5 +82,5 @@ export async function getContributorBalance(userAccountId: string): Promise<numb
     .execute(client);
 
   const tokenBalance = balance.tokens?.get(tokenId);
-  return tokenBalance ? Number(tokenBalance) / DECIMALS : 0;
+  return tokenBalance ? Number(tokenBalance) / TOKEN_DECIMALS : 0;
 }

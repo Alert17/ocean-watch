@@ -6,12 +6,9 @@ import {
   AccountId,
   Hbar,
 } from "@hashgraph/sdk";
-import { client, operatorId, operatorKey, tokenId, treasuryAccountId, treasuryKey, platformAccountId } from "./client";
+import { client, operatorId, tokenId, treasuryAccountId, treasuryKey, platformAccountId } from "./client";
 import { TokenPriceInfo, DonationResult, RedeemResult } from "./types";
-
-const PLATFORM_FEE_PERCENT = 20;
-const TREASURY_PERCENT = 80;
-const DECIMALS = 100; // 10^2
+import { TOKEN_DECIMALS, PLATFORM_FEE_PERCENT, TREASURY_PERCENT } from "../config/constants";
 
 export async function getTreasuryBalance(): Promise<number> {
   const balance = await new AccountBalanceQuery()
@@ -26,7 +23,7 @@ export async function getCirculatingSupply(): Promise<number> {
     .setTokenId(tokenId)
     .execute(client);
 
-  return Number(info.totalSupply) / DECIMALS;
+  return Number(info.totalSupply) / TOKEN_DECIMALS;
 }
 
 export async function getTokenPrice(): Promise<TokenPriceInfo> {
@@ -54,7 +51,7 @@ export async function processDonation(
     .addHbarTransfer(platformAccountId, new Hbar(platformAmount))
     .execute(client);
 
-  const receipt = await tx.getReceipt(client);
+  await tx.getReceipt(client);
 
   return {
     totalHbar: amountHbar,
@@ -69,12 +66,24 @@ export async function processRedeem(
   tokenAmount: number,
 ): Promise<RedeemResult> {
   const user = AccountId.fromString(userAccountId);
-  const rawAmount = Math.round(tokenAmount * DECIMALS);
+  const rawAmount = Math.round(tokenAmount * TOKEN_DECIMALS);
 
   const circulatingSupply = await getCirculatingSupply();
+  if (circulatingSupply <= 0) {
+    throw new Error("No tokens in circulation, cannot redeem");
+  }
+
   const treasuryBalance = await getTreasuryBalance();
+  if (treasuryBalance <= 0) {
+    throw new Error("Treasury is empty, cannot redeem");
+  }
+
   const hbarShareRaw = (tokenAmount / circulatingSupply) * treasuryBalance;
   const hbarShare = Math.floor(hbarShareRaw * 1e8) / 1e8; // round down to tinybars
+
+  if (hbarShare <= 0) {
+    throw new Error("Redemption amount too small");
+  }
 
   // 1. Transfer tokens from user to operator (for burning)
   const transferTx = await new TransferTransaction()
@@ -93,13 +102,13 @@ export async function processRedeem(
   await burnTx.getReceipt(client);
 
   // 3. Send HBAR from treasury to user
-  const hbarTx = await new TransferTransaction()
+  const hbarTx = new TransferTransaction()
     .addHbarTransfer(treasuryAccountId, new Hbar(-hbarShare))
     .addHbarTransfer(user, new Hbar(hbarShare))
-    .freezeWith(client)
-    .sign(treasuryKey);
+    .freezeWith(client);
 
-  const hbarTxSubmit = await (await hbarTx).execute(client);
+  const signedTx = await (await hbarTx).sign(treasuryKey);
+  const hbarTxSubmit = await signedTx.execute(client);
 
   await hbarTxSubmit.getReceipt(client);
 

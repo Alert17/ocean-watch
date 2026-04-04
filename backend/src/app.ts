@@ -12,6 +12,7 @@ import { tokenRoutes } from "./routes/token";
 import { userRoutes } from "./routes/user";
 import { uploadRoutes } from "./routes/upload";
 import { worldIdRoutes } from "./routes/worldid";
+import { MAX_FILE_SIZE } from "./config/constants";
 
 const app = Fastify({ logger: true });
 
@@ -40,7 +41,7 @@ app.register(swaggerUi, {
 
 app.register(cors, { origin: true });
 app.register(jwt, { secret: config.jwtSecret });
-app.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max
+app.register(multipart, { limits: { fileSize: MAX_FILE_SIZE } });
 app.register(sensible);
 app.register(authRoutes, { prefix: "/auth" });
 app.register(sightingsRoutes, { prefix: "/sightings" });

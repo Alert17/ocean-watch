@@ -6,6 +6,7 @@ export async function submitSighting(sighting: Sighting) {
   const tx = await new TopicMessageSubmitTransaction()
     .setTopicId(topicId)
     .setMessage(JSON.stringify(sighting))
+    .setTransactionMemo(`sighting:${sighting.id}`)
     .execute(client);
 
   const receipt = await tx.getReceipt(client);
