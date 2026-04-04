@@ -3,13 +3,15 @@ import { v4 as uuid } from "uuid";
 import { submitSighting, rewardSighting } from "../hedera";
 import { Species, Behavior, Sighting } from "../types/sighting";
 import { DEFAULTS } from "../config/constants";
+import { authenticate } from "../plugins/authenticate";
 
 const createSightingSchema = {
   description: "Submit a new marine life sighting to HCS and reward observer",
   tags: ["sightings"],
+  security: [{ bearerAuth: [] }],
   body: {
     type: "object",
-    required: ["latitude", "longitude", "observedAt", "wallet"],
+    required: ["latitude", "longitude", "observedAt"],
     properties: {
       latitude: { type: "number" },
       longitude: { type: "number" },
@@ -19,7 +21,6 @@ const createSightingSchema = {
       observedAt: { type: "string", format: "date-time" },
       comment: { type: "string" },
       mediaUrl: { type: "string" },
-      wallet: { type: "string", description: "Hedera Account ID of observer" },
     },
   },
 };
@@ -33,24 +34,12 @@ interface CreateSightingBody {
   observedAt: string;
   comment?: string;
   mediaUrl?: string;
-  wallet: string;
 }
 
 export async function sightingsRoutes(app: FastifyInstance) {
-  app.post<{ Body: CreateSightingBody }>("/", { schema: createSightingSchema }, async (request, reply) => {
+  app.post<{ Body: CreateSightingBody }>("/", { schema: createSightingSchema, onRequest: [authenticate] }, async (request, reply) => {
     const body = request.body;
-
-    if (!body.wallet) {
-      return reply.badRequest("wallet is required");
-    }
-
-    if (!body.latitude || !body.longitude) {
-      return reply.badRequest("latitude and longitude are required");
-    }
-
-    if (!body.observedAt) {
-      return reply.badRequest("observedAt is required");
-    }
+    const wallet = request.user.wallet;
 
     const sighting: Sighting = {
       id: uuid(),
@@ -63,16 +52,16 @@ export async function sightingsRoutes(app: FastifyInstance) {
       createdAt: new Date().toISOString(),
       comment: body.comment,
       mediaUrl: body.mediaUrl,
-      wallet: body.wallet,
+      wallet,
     };
 
     const hcsResult = await submitSighting(sighting);
 
     let reward = null;
     try {
-      reward = await rewardSighting(body.wallet);
+      reward = await rewardSighting(wallet);
     } catch (err) {
-      app.log.warn({ err, wallet: body.wallet }, "Failed to reward sighting, token not associated?");
+      app.log.warn({ err, wallet }, "Failed to reward sighting, token not associated?");
     }
 
     return reply.code(201).send({
