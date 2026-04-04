@@ -53,3 +53,11 @@
   background: transparent !important;
   border: none !important;
 }
+
+.ocean-watch-leaflet-map .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+}
+
+.ocean-watch-leaflet-map .leaflet-popup-content {
+  margin: 10px 12px;
+}
