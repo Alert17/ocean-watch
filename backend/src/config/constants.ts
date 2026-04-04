@@ -32,3 +32,7 @@ export const PLATFORM_FEE_PERCENT = 20;
 
 /** Max upload file size in bytes (100 MB) */
 export const MAX_FILE_SIZE = 100 * 1024 * 1024;
+
+/** Rate limit: max sightings per time window */
+export const SIGHTING_RATE_LIMIT_MAX = 10;
+export const SIGHTING_RATE_LIMIT_WINDOW = "1 hour";

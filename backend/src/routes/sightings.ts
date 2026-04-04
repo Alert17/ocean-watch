@@ -3,6 +3,7 @@ import rateLimit from "@fastify/rate-limit";
 import { Species, Behavior, CreateSightingBody } from "../types/sighting";
 import { authenticate } from "../plugins/authenticate";
 import { createSighting } from "../services/sighting.service";
+import { SIGHTING_RATE_LIMIT_MAX, SIGHTING_RATE_LIMIT_WINDOW } from "../config/constants";
 
 const createSightingSchema = {
   description: "Submit a new marine life sighting to HCS and reward observer",
@@ -26,13 +27,13 @@ const createSightingSchema = {
 
 export async function sightingsRoutes(app: FastifyInstance) {
   await app.register(rateLimit, {
-    max: 10,
-    timeWindow: "1 hour",
+    max: SIGHTING_RATE_LIMIT_MAX,
+    timeWindow: SIGHTING_RATE_LIMIT_WINDOW,
     keyGenerator: (request) => request.user?.wallet ?? request.ip,
     errorResponseBuilder: () => ({
       statusCode: 429,
       error: "Too Many Requests",
-      message: "Max 10 sightings per hour",
+      message: `Max ${SIGHTING_RATE_LIMIT_MAX} sightings per ${SIGHTING_RATE_LIMIT_WINDOW}`,
     }),
   });
 
