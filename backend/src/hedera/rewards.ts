@@ -8,6 +8,9 @@ import { client, operatorId, tokenId } from "./client";
 import { SightingReward } from "./types";
 import { REWARD_AMOUNT, TOKEN_DECIMALS } from "../config/constants";
 
+/** Track rewarded sighting IDs to prevent double-rewards on retries */
+const rewardedSightings = new Set<string>();
+
 async function isTokenAssociated(accountId: AccountId): Promise<boolean> {
   const balance = await new AccountBalanceQuery()
     .setAccountId(accountId)
@@ -16,7 +19,12 @@ async function isTokenAssociated(accountId: AccountId): Promise<boolean> {
   return balance.tokens?.get(tokenId) !== null;
 }
 
-export async function rewardSighting(userAccountId: string): Promise<SightingReward> {
+export async function rewardSighting(userAccountId: string, sightingId: string): Promise<SightingReward> {
+  // Idempotency: skip if already rewarded
+  if (rewardedSightings.has(sightingId)) {
+    throw new Error(`Sighting ${sightingId} already rewarded`);
+  }
+
   const user = AccountId.fromString(userAccountId);
 
   // 0. Check token association
@@ -33,13 +41,16 @@ export async function rewardSighting(userAccountId: string): Promise<SightingRew
 
   await mintTx.getReceipt(client);
 
-  // 2. Transfer from treasury to user
+  // 2. Transfer from treasury to user (memo = sightingId for on-chain traceability)
   const transferTx = await new TransferTransaction()
     .addTokenTransfer(tokenId, operatorId, -REWARD_AMOUNT)
     .addTokenTransfer(tokenId, user, REWARD_AMOUNT)
+    .setTransactionMemo(`reward:${sightingId}`)
     .execute(client);
 
   await transferTx.getReceipt(client);
+
+  rewardedSightings.add(sightingId);
 
   return {
     tokensMinted: REWARD_AMOUNT / TOKEN_DECIMALS,

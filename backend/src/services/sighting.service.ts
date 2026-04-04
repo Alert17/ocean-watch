@@ -34,7 +34,7 @@ export async function createSighting(body: CreateSightingBody, wallet: string): 
   let reward: SightingReward | null = null;
   let rewardError: string | undefined;
   try {
-    reward = await rewardSighting(wallet);
+    reward = await rewardSighting(wallet, sighting.id);
   } catch (err) {
     rewardError = err instanceof Error ? err.message : "Unknown reward error";
   }
