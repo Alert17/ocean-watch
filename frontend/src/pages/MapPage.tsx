@@ -264,7 +264,7 @@ export function MapPage() {
 
   // Step 2 — land / sea validation: only sea sightings are shown on the map.
   // Rejected entries (on-land coordinates) are counted and reported to the user.
-  const { sea: filtered, rejected: landRejected } = useMemo(
+  const { sea: filtered } = useMemo(
     () => classifySightings(afterFilters, COZUMEL_LAND_GEOJSON),
     [afterFilters],
   );
@@ -329,23 +329,6 @@ export function MapPage() {
             </span>
           </div>
 
-          {/* Land-rejection warning — only visible when bad data is present */}
-          {landRejected.length > 0 && (
-            <div
-              className="flex items-start gap-2 rounded-xl border border-coral-500/30 bg-coral-500/10 px-3 py-2.5 text-xs text-coral-300"
-              role="alert"
-            >
-              <span className="mt-0.5 shrink-0" aria-hidden>⚠</span>
-              <span>
-                <strong>{landRejected.length}</strong>{" "}
-                {landRejected.length === 1 ? "sighting was" : "sightings were"} excluded
-                — coordinates fall on land and cannot represent a valid shark observation.
-                {landRejected.some((r) => r.snapped !== null) && (
-                  <> Nearest sea position was found but the original record is not shown to preserve data integrity.</>
-                )}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* ── World map ──────────────────────────────────────── */}
