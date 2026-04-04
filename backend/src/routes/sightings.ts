@@ -4,6 +4,35 @@ import { submitSighting } from "../services/hedera";
 import { Species, Behavior, Sighting } from "../types/sighting";
 import { DEFAULTS } from "../config/constants";
 
+const createSightingSchema = {
+  description: "Submit a new marine life sighting to HCS",
+  tags: ["sightings"],
+  body: {
+    type: "object",
+    required: ["latitude", "longitude", "observedAt", "wallet"],
+    properties: {
+      latitude: { type: "number", description: "Latitude coordinate" },
+      longitude: { type: "number", description: "Longitude coordinate" },
+      species: { type: "string", enum: Object.values(Species), default: Species.WHITE_SHARK },
+      count: { type: "number", default: 1 },
+      behavior: { type: "string", enum: Object.values(Behavior), default: Behavior.UNKNOWN },
+      observedAt: { type: "string", format: "date-time", description: "When the sighting occurred" },
+      comment: { type: "string" },
+      mediaUrl: { type: "string", description: "IPFS link to media" },
+      wallet: { type: "string", description: "Hedera Account ID of observer" },
+    },
+  },
+  response: {
+    201: {
+      type: "object",
+      properties: {
+        sighting: { type: "object" },
+        sequenceNumber: { type: "string" },
+      },
+    },
+  },
+};
+
 interface CreateSightingBody {
   latitude: number;
   longitude: number;
@@ -17,7 +46,7 @@ interface CreateSightingBody {
 }
 
 export async function sightingsRoutes(app: FastifyInstance) {
-  app.post<{ Body: CreateSightingBody }>("/", async (request, reply) => {
+  app.post<{ Body: CreateSightingBody }>("/", { schema: createSightingSchema }, async (request, reply) => {
     const body = request.body;
 
     if (!body.wallet) {
