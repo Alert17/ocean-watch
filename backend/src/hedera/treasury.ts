@@ -6,7 +6,7 @@ import {
   AccountId,
   Hbar,
 } from "@hashgraph/sdk";
-import { client, operatorId, operatorKey, tokenId, treasuryAccountId, treasuryKey, platformAccountId } from "./client";
+import { client, operatorId, tokenId, treasuryAccountId, treasuryKey, platformAccountId } from "./client";
 import { TokenPriceInfo, DonationResult, RedeemResult } from "./types";
 import { TOKEN_DECIMALS, PLATFORM_FEE_PERCENT, TREASURY_PERCENT } from "../config/constants";
 
@@ -51,7 +51,7 @@ export async function processDonation(
     .addHbarTransfer(platformAccountId, new Hbar(platformAmount))
     .execute(client);
 
-  const receipt = await tx.getReceipt(client);
+  await tx.getReceipt(client);
 
   return {
     totalHbar: amountHbar,
@@ -102,13 +102,13 @@ export async function processRedeem(
   await burnTx.getReceipt(client);
 
   // 3. Send HBAR from treasury to user
-  const hbarTx = await new TransferTransaction()
+  const hbarTx = new TransferTransaction()
     .addHbarTransfer(treasuryAccountId, new Hbar(-hbarShare))
     .addHbarTransfer(user, new Hbar(hbarShare))
-    .freezeWith(client)
-    .sign(treasuryKey);
+    .freezeWith(client);
 
-  const hbarTxSubmit = await (await hbarTx).execute(client);
+  const signedTx = await (await hbarTx).sign(treasuryKey);
+  const hbarTxSubmit = await signedTx.execute(client);
 
   await hbarTxSubmit.getReceipt(client);
 
