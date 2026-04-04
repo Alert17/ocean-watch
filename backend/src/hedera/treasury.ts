@@ -73,7 +73,8 @@ export async function processRedeem(
 
   const circulatingSupply = await getCirculatingSupply();
   const treasuryBalance = await getTreasuryBalance();
-  const hbarShare = (tokenAmount / circulatingSupply) * treasuryBalance;
+  const hbarShareRaw = (tokenAmount / circulatingSupply) * treasuryBalance;
+  const hbarShare = Math.floor(hbarShareRaw * 1e8) / 1e8; // round down to tinybars
 
   // 1. Transfer tokens from user to treasury
   const transferTx = await new TransferTransaction()
