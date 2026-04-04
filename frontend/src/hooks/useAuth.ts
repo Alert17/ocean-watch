@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from "react";
 
 const KEYS = {
@@ -71,3 +72,7 @@ export function useAuth(): AuthState {
     logout,
   };
 }
+=======
+export { useWalletAuth as useAuth } from "../contexts/WalletAuthContext";
+export type { WalletAuthState as AuthState } from "../contexts/WalletAuthContext";
+>>>>>>> 539037b (update auth wallet)
