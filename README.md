@@ -20,6 +20,16 @@ Nadia and her team access a live dashboard showing all sightings on a real-time 
 
 ---
 
+## Run the frontend
+
+```
+cd frontend
+npm run dev
+```
+
+
+---
+
 ## License
 
 MIT — feel free to fork and adapt for other citizen science projects.
