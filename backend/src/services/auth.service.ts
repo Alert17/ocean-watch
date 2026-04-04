@@ -60,9 +60,13 @@ export async function verifyChallenge(
     return { valid: false };
   }
 
-  // 3. Verify signature
+  // 3. Verify signature.
+  // Hedera WalletConnect (HIP-820) wallets prepend an EIP-191-style prefix
+  // before signing: "\x19Hedera Signed Message:\n{length}{message}".
+  // We must verify against the prefixed bytes.
   const message = `Sign this message to verify wallet ownership for OceanWatch:\n${nonce}`;
-  const messageBytes = new Uint8Array(Buffer.from(message, "utf-8"));
+  const prefixedMessage = `\x19Hedera Signed Message:\n${message.length}${message}`;
+  const messageBytes = new Uint8Array(Buffer.from(prefixedMessage, "utf-8"));
   const signatureBytes = new Uint8Array(Buffer.from(signature, "hex"));
 
   try {
