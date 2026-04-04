@@ -5,6 +5,7 @@ import {
   processDonation,
   processRedeem,
 } from "../hedera";
+import { authenticate } from "../plugins/authenticate";
 
 export async function tokenRoutes(app: FastifyInstance) {
   app.get("/price", {
@@ -30,6 +31,7 @@ export async function tokenRoutes(app: FastifyInstance) {
     schema: {
       description: "Donate HBAR to treasury (80% redeemable, 20% platform)",
       tags: ["token"],
+      security: [{ bearerAuth: [] }],
       body: {
         type: "object",
         required: ["donorAccountId", "amountHbar"],
@@ -39,6 +41,7 @@ export async function tokenRoutes(app: FastifyInstance) {
         },
       },
     },
+    onRequest: [authenticate],
   }, async (request, reply) => {
     const { donorAccountId, amountHbar } = request.body;
 
@@ -54,6 +57,7 @@ export async function tokenRoutes(app: FastifyInstance) {
     schema: {
       description: "Redeem OCEAN tokens for HBAR share of treasury",
       tags: ["token"],
+      security: [{ bearerAuth: [] }],
       body: {
         type: "object",
         required: ["userAccountId", "tokenAmount"],
@@ -63,6 +67,7 @@ export async function tokenRoutes(app: FastifyInstance) {
         },
       },
     },
+    onRequest: [authenticate],
   }, async (request, reply) => {
     const { userAccountId, tokenAmount } = request.body;
 
