@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "../components/Layout";
 import { behaviorLabel, speciesLabel } from "../constants/fieldbook";
-import { fetchMySightings } from "../graphql/api";
+import { fetchSightings } from "../graphql/api";
 
 function formatWhen(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -12,15 +12,15 @@ function formatWhen(iso: string): string {
 
 export function HistoryPage() {
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["mySightings"],
-    queryFn: () => fetchMySightings(40),
+    queryKey: ["sightings"],
+    queryFn: fetchSightings,
   });
 
   return (
     <Layout title="History">
       <div className="mt-2 space-y-4">
         <p className="text-sm text-slate-400">
-          Your saved sightings (GraphQL mocked in development).
+          Sightings from the indexer (<code className="text-lagoon-400/90">sightings</code> query).
         </p>
 
         {isPending ? (
@@ -39,7 +39,7 @@ export function HistoryPage() {
             className="rounded-2xl border border-coral-500/40 bg-coral-500/10 p-4 text-sm text-coral-200"
             role="alert"
           >
-            Could not load history.
+            Could not load sightings.
             <button
               type="button"
               className="mt-2 block font-medium text-reef-300 underline"
@@ -52,8 +52,7 @@ export function HistoryPage() {
 
         {data && data.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-lagoon-500/25 bg-abyss-850/50 p-6 text-center text-sm text-slate-400">
-            No sightings yet. Start with a report from the{" "}
-            <span className="text-foam">Report</span> tab.
+            No sightings returned by the indexer yet.
           </p>
         ) : null}
 
@@ -79,17 +78,23 @@ export function HistoryPage() {
                   {s.count} {s.count === 1 ? "individual" : "individuals"} ·{" "}
                   {behaviorLabel(s.behavior)}
                 </p>
-                {s.zoneName ? (
-                  <p className="mt-2 text-xs uppercase tracking-wider text-reef-400/90">
-                    Zone · {s.zoneName}
-                  </p>
-                ) : null}
-                <p className="mt-1 font-mono text-[11px] text-slate-500">
-                  {s.latitude.toFixed(4)}°, {s.longitude.toFixed(4)}°
+                <p className="mt-2 text-xs uppercase tracking-wider text-reef-400/90">
+                  Seq. {s.sequenceNumber} · Wallet {s.wallet}
+                </p>
+                <p className="mt-1 font-mono text-[10px] text-slate-500">
+                  {s.latitude.toFixed(4)}°, {s.longitude.toFixed(4)}° · consensus{" "}
+                  {s.consensusTimestamp}
                 </p>
                 {s.comment ? (
                   <p className="mt-2 border-t border-white/5 pt-2 text-sm text-slate-300">
                     {s.comment}
+                  </p>
+                ) : null}
+                {s.mediaUrl ? (
+                  <p className="mt-1 text-xs text-lagoon-400">
+                    <a href={s.mediaUrl} className="underline" target="_blank" rel="noreferrer">
+                      Media
+                    </a>
                   </p>
                 ) : null}
               </li>

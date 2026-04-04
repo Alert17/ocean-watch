@@ -1,7 +1,7 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
-import type { Zone } from "../graphql/types";
+import type { MarineZone } from "../data/marineZones";
 import { findZoneForPoint } from "../lib/geo";
 
 export type MapPick = {
@@ -11,7 +11,7 @@ export type MapPick = {
 };
 
 type Props = {
-  zones: Zone[];
+  zones: MarineZone[];
   value: MapPick | null;
   onChange: (next: MapPick) => void;
 };
@@ -27,7 +27,7 @@ const zoneStyle: L.PathOptions = {
   fillOpacity: 0.14,
 };
 
-function zonesToFeatureCollection(zones: Zone[]): GeoJSON.FeatureCollection {
+function zonesToFeatureCollection(zones: MarineZone[]): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
     features: zones.map((z) => ({

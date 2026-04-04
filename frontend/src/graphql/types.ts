@@ -1,11 +1,4 @@
-export type Zone = {
-  id: string;
-  name: string;
-  slug: string;
-  /** Ring of [lng, lat] */
-  polygon: [number, number][];
-};
-
+/** Matches indexer `Sighting` type (https://indexer.oceanwatch.xyz/graphql). */
 export type Sighting = {
   id: string;
   latitude: number;
@@ -16,17 +9,8 @@ export type Sighting = {
   observedAt: string;
   createdAt: string;
   comment: string | null;
-  zoneId: string | null;
-  zoneName: string | null;
-};
-
-export type SubmitSightingInput = {
-  latitude: number;
-  longitude: number;
-  species: string;
-  count: number;
-  behavior: string;
-  observedAt: string;
-  comment?: string;
-  zoneId?: string;
+  mediaUrl: string | null;
+  wallet: string;
+  sequenceNumber: number;
+  consensusTimestamp: string;
 };

@@ -7,9 +7,11 @@ export function HomePage() {
       <div className="relative mt-2 space-y-6">
         <div className="rounded-2xl border border-lagoon-500/20 bg-abyss-850/80 p-5 shadow-card backdrop-blur-sm">
           <p className="text-balance text-sm leading-relaxed text-slate-300">
-            A digital field notebook for citizen science: report one or more sharks around{" "}
-            <strong className="text-foam">Cozumel</strong> with map position and marine zone. Your
-            submissions feed the local history (mock data in development).
+            A digital field notebook for citizen science around{" "}
+            <strong className="text-foam">Cozumel</strong>: explore zones on the map and browse
+            confirmed sightings from the{" "}
+            <strong className="text-foam">Ocean Watch indexer</strong> (GraphQL). The indexer is
+            read-only from this app; reporting is explained on the Report tab.
           </p>
         </div>
 

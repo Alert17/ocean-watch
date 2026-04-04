@@ -1,17 +1,6 @@
-export const ZONES_QUERY = /* GraphQL */ `
-  query Zones {
-    zones {
-      id
-      name
-      slug
-      polygon
-    }
-  }
-`;
-
-export const MY_SIGHTINGS_QUERY = /* GraphQL */ `
-  query MySightings($limit: Int) {
-    mySightings(limit: $limit) {
+export const SIGHTINGS_QUERY = /* GraphQL */ `
+  query Sightings {
+    sightings {
       id
       latitude
       longitude
@@ -21,15 +10,17 @@ export const MY_SIGHTINGS_QUERY = /* GraphQL */ `
       observedAt
       createdAt
       comment
-      zoneId
-      zoneName
+      mediaUrl
+      wallet
+      sequenceNumber
+      consensusTimestamp
     }
   }
 `;
 
-export const SUBMIT_SIGHTING_MUTATION = /* GraphQL */ `
-  mutation SubmitSighting($input: SubmitSightingInput!) {
-    submitSighting(input: $input) {
+export const SIGHTING_QUERY = /* GraphQL */ `
+  query Sighting($id: String!) {
+    sighting(id: $id) {
       id
       latitude
       longitude
@@ -39,8 +30,10 @@ export const SUBMIT_SIGHTING_MUTATION = /* GraphQL */ `
       observedAt
       createdAt
       comment
-      zoneId
-      zoneName
+      mediaUrl
+      wallet
+      sequenceNumber
+      consensusTimestamp
     }
   }
 `;

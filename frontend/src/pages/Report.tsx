@@ -1,13 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 import { Layout } from "../components/Layout";
 import { MapPicker, type MapPick } from "../components/MapPicker";
 import { BEHAVIOR_OPTIONS, SPECIES_OPTIONS } from "../constants/fieldbook";
+import { MARINE_ZONES } from "../data/marineZones";
 import { toDatetimeLocalValue } from "../lib/datetime";
-import { fetchZones, submitSighting } from "../graphql/api";
 
 const speciesValues = SPECIES_OPTIONS.map((o) => o.value) as [
   string,
@@ -38,18 +37,11 @@ const formSchema = z
 type FormValues = z.infer<typeof formSchema>;
 
 export function ReportPage() {
-  const queryClient = useQueryClient();
-  const zonesQuery = useQuery({
-    queryKey: ["zones"],
-    queryFn: fetchZones,
-  });
-
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -65,13 +57,6 @@ export function ReportPage() {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: submitSighting,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["mySightings"] });
-    },
-  });
-
   const [lat, lng] = [watch("latitude"), watch("longitude")];
 
   const onMapChange = (pick: MapPick) => {
@@ -80,53 +65,46 @@ export function ReportPage() {
     setValue("zoneId", pick.zoneId ?? "", { shouldValidate: true });
   };
 
-  const onSubmit = handleSubmit(async (values) => {
-    mutation.reset();
-    await mutation.mutateAsync({
-      latitude: values.latitude,
-      longitude: values.longitude,
-      species: values.species,
-      count: values.count,
-      behavior: values.behavior,
-      observedAt: new Date(values.observedAt).toISOString(),
-      comment: values.comment?.trim() || undefined,
-      zoneId: values.zoneId || undefined,
-    });
-    reset({
-      ...values,
-      latitude: 0,
-      longitude: 0,
-      zoneId: "",
-      observedAt: toDatetimeLocalValue(new Date().toISOString()),
-      comment: "",
-    });
+  const onSubmit = handleSubmit(() => {
+    /* Indexer has no mutations — form is UI-only. */
   });
 
   return (
     <Layout title="Report">
       <div className="mt-2 space-y-5">
+        <div
+          className="rounded-2xl border border-lagoon-500/25 bg-abyss-850/70 px-4 py-3 text-sm text-slate-300"
+          role="note"
+        >
+          The{" "}
+          <a
+            href="https://indexer.oceanwatch.xyz/graphql"
+            className="text-lagoon-400 underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            indexer GraphQL API
+          </a>{" "}
+          is <strong className="text-foam">read-only</strong> (queries{" "}
+          <code className="text-reef-300">sightings</code> /{" "}
+          <code className="text-reef-300">sighting</code> only). New records are not submitted
+          from this page. Browse confirmed sightings under{" "}
+          <Link to="/history" className="font-medium text-reef-300 underline">
+            History
+          </Link>
+          .
+        </div>
+
         <p className="text-sm text-slate-400">
-          Tap the map to place your sighting in a coastal zone around Cozumel, then complete the
-          form.
+          Practice placing a pin in a coastal zone around Cozumel (zones are local to this app,
+          not from the indexer).
         </p>
 
-        {zonesQuery.isPending ? (
-          <div
-            className="h-[min(52vh,22rem)] animate-pulse rounded-2xl bg-abyss-800/70"
-            aria-busy
-            aria-label="Loading map"
-          />
-        ) : null}
-
-        {zonesQuery.isError ? (
-          <p className="text-sm text-coral-300" role="alert">
-            Could not load zones. Check your connection or the MSW mock.
-          </p>
-        ) : null}
-
-        {zonesQuery.data ? (
-          <MapPicker zones={zonesQuery.data} value={pickFromForm(lat, lng, watch("zoneId"))} onChange={onMapChange} />
-        ) : null}
+        <MapPicker
+          zones={MARINE_ZONES}
+          value={pickFromForm(lat, lng, watch("zoneId"))}
+          onChange={onMapChange}
+        />
 
         <form onSubmit={onSubmit} className="space-y-4">
           <input type="hidden" {...register("latitude", { valueAsNumber: true })} />
@@ -204,27 +182,13 @@ export function ReportPage() {
             />
           </label>
 
-          {mutation.isError ? (
-            <p className="text-sm text-coral-300" role="alert">
-              Submission failed. Please try again.
-            </p>
-          ) : null}
-
-          {mutation.isSuccess ? (
-            <p className="rounded-xl border border-reef-500/30 bg-reef-500/10 px-3 py-2 text-sm text-reef-200">
-              Sighting saved.{" "}
-              <Link to="/history" className="font-medium underline">
-                View history
-              </Link>
-            </p>
-          ) : null}
-
           <button
             type="submit"
-            disabled={mutation.isPending || zonesQuery.isPending}
-            className="w-full rounded-2xl bg-gradient-to-r from-reef-500 to-lagoon-600 py-3.5 font-semibold text-abyss-950 shadow-glow transition enabled:hover:from-reef-400 enabled:hover:to-lagoon-500 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled
+            className="w-full cursor-not-allowed rounded-2xl border border-slate-600 bg-abyss-800 py-3.5 font-semibold text-slate-500"
+            title="Indexer has no GraphQL mutations"
           >
-            {mutation.isPending ? "Sending…" : "Submit sighting"}
+            Submit unavailable — indexer is read-only
           </button>
         </form>
       </div>
