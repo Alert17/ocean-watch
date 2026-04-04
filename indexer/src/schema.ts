@@ -15,8 +15,14 @@ export const typeDefs = /* GraphQL */ `
     consensusTimestamp: String!
   }
 
+  type SightingsPage {
+    items: [Sighting!]!
+    total: Int!
+    hasMore: Boolean!
+  }
+
   type Query {
-    sightings: [Sighting!]!
+    sightings(limit: Int = 50, offset: Int = 0): SightingsPage!
     sighting(id: String!): Sighting
   }
 `;
