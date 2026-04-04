@@ -162,7 +162,7 @@ export function WalletAuthProvider({ children }: { children: ReactNode }) {
     });
 
     // 4. Extract raw signature bytes from the signatureMap
-    const signatureMapBase64 = signResult.signatureMap;
+    const signatureMapBase64 = (signResult as unknown as { signatureMap: string }).signatureMap;
     const signatureMap = base64StringToSignatureMap(signatureMapBase64);
     const signatureBytes = extractFirstSignature(signatureMap);
 

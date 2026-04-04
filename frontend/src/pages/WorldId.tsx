@@ -16,7 +16,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "../components/Layout";
 import { useAuth } from "../hooks/useAuth";
-import { loginUser, registerUser, verifyWorldId } from "../lib/api";
+import { verifyWorldId } from "../lib/api";
 
 const WORLD_APP_ID = "app_5e00cf5d85b7fa221f91d0de558c70c3" as const;
 const WORLD_ACTION = "verify-human";
@@ -28,39 +28,12 @@ export function WorldIdPage() {
   const [wallet, setWallet] = useState(auth.wallet ?? "");
   const [name, setName] = useState(auth.name ?? "");
   const [authError, setAuthError] = useState<string | null>(null);
-  const [isAuthPending, setIsAuthPending] = useState(false);
+  const [isAuthPending] = useState(false);
   const [worldIdError, setWorldIdError] = useState<string | null>(null);
 
   const handleWalletSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAuthError(null);
-    const trimmedWallet = wallet.trim();
-    const trimmedName = name.trim();
-
-    if (!trimmedWallet) {
-      setAuthError("L'identifiant de compte Hedera est requis.");
-      return;
-    }
-
-    setIsAuthPending(true);
-    try {
-      let res;
-      try {
-        res = await loginUser(trimmedWallet);
-      } catch {
-        if (!trimmedName) {
-          setAuthError("Compte introuvable. Entrez un nom pour créer un compte.");
-          setIsAuthPending(false);
-          return;
-        }
-        res = await registerUser(trimmedWallet, trimmedName);
-      }
-      auth.setAuth(res.token, res.user.wallet, res.user.name);
-    } catch (err) {
-      setAuthError(err instanceof Error ? err.message : "Erreur d'authentification");
-    } finally {
-      setIsAuthPending(false);
-    }
+    setAuthError("La connexion directe via clé privée n'est plus supportée. Utilisez le bouton mock (dev) ou HashPack (bientôt disponible).");
   };
 
   const handleWorldIdVerify = async (result: ISuccessResult) => {

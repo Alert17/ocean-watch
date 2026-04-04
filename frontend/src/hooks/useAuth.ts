@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useState } from "react";
 
 const KEYS = {
@@ -8,7 +7,7 @@ const KEYS = {
   worldIdVerified: "ow_world_id_verified",
 } as const;
 
-/** Après une connexion WalletConnect Hedera réussie (sans JWT API encore). */
+/** Persists a Hedera account ID obtained via WalletConnect (before API auth). */
 export function persistConnectedHederaAccount(accountId: string): void {
   localStorage.setItem(KEYS.wallet, accountId);
 }
@@ -72,7 +71,3 @@ export function useAuth(): AuthState {
     logout,
   };
 }
-=======
-export { useWalletAuth as useAuth } from "../contexts/WalletAuthContext";
-export type { WalletAuthState as AuthState } from "../contexts/WalletAuthContext";
->>>>>>> 539037b (update auth wallet)

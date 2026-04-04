@@ -1,12 +1,13 @@
-<<<<<<< HEAD
-import { Link } from "react-router-dom";
-import { Layout } from "../components/Layout";
-import { useAuth } from "../hooks/useAuth";
-=======
 /**
  * MyAccount — two-step auth flow:
- *   Step 1: Connect Hedera wallet via WalletConnect (challenge-sign-verify)
- *   Step 2: World ID verification (IDKitWidget -> POST /worldid/verify)
+ *
+ *   Step 1: Wallet     → dev mock (⚙) OR HashPack/WalletConnect (coming soon)
+ *   Step 2: World ID   → IDKitWidget → POST /worldid/verify → verified
+ *
+ * World ID:
+ *   App ID : app_5e00cf5d85b7fa221f91d0de558c70c3
+ *   Action : verify-human
+ *   Level  : Device
  */
 
 import { IDKitWidget, VerificationLevel, type ISuccessResult } from "@worldcoin/idkit";
@@ -16,97 +17,27 @@ import { Layout } from "../components/Layout";
 import { useAuth } from "../hooks/useAuth";
 import { verifyWorldId } from "../lib/api";
 
-const WORLD_APP_ID = (import.meta.env.VITE_WORLDID_APP_ID as string) || "app_5e00cf5d85b7fa221f91d0de558c70c3";
-const WORLD_ACTION = (import.meta.env.VITE_WORLDID_ACTION as string) || "verify-human";
->>>>>>> 539037b (update auth wallet)
+const WORLD_APP_ID = (import.meta.env.VITE_WORLDID_APP_ID as string | undefined) ?? "app_5e00cf5d85b7fa221f91d0de558c70c3";
+const WORLD_ACTION = (import.meta.env.VITE_WORLDID_ACTION as string | undefined) ?? "verify-human";
 
-/**
- * Account hub at /my-account.
- * Hedera login + World ID verification live on /world-id.
- */
+const DEV_MOCK_WALLET = "0.0.99999";
+const DEV_MOCK_NAME   = "Dev User";
+
 export function MyAccountPage() {
   const auth = useAuth();
+  const navigate = useNavigate();
 
-<<<<<<< HEAD
-  return (
-    <Layout title="Mon compte">
-      <div className="mt-4 space-y-6">
-        <p className="text-sm text-slate-400">
-          Gérez votre session Ocean Watch. La connexion Hedera et la vérification World ID se
-          font sur la page dédiée.
-        </p>
-
-        <Link
-          to="/world-id"
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 px-5 py-4 font-semibold text-abyss-950 shadow-glow transition hover:from-reef-400 hover:to-lagoon-500"
-        >
-          Ouvrir World ID &amp; connexion
-        </Link>
-
-        {auth.jwt || auth.wallet ? (
-          <div className="rounded-2xl border border-lagoon-500/20 bg-abyss-850/70 p-4 space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wider text-lagoon-400/80">
-              État de la session
-            </p>
-            {auth.wallet ? (
-              <p className="font-mono text-xs text-slate-400 break-all">{auth.wallet}</p>
-            ) : null}
-            {auth.name ? (
-              <p className="text-sm text-foam">{auth.name}</p>
-            ) : null}
-            <p className="text-sm text-slate-400">
-              World ID :{" "}
-              <span className={auth.isWorldIdVerified ? "text-reef-300" : "text-coral-300"}>
-                {auth.isWorldIdVerified ? "vérifié" : "non vérifié"}
-              </span>
-            </p>
-            {!auth.isWorldIdVerified && auth.jwt ? (
-              <p className="text-xs text-slate-500">
-                Poursuivez sur la page World ID pour finaliser la vérification.
-              </p>
-            ) : null}
-          </div>
-        ) : null}
-
-        {auth.isReady ? (
-          <button
-            type="button"
-            onClick={auth.logout}
-            className="w-full rounded-2xl border border-slate-700 bg-abyss-850 py-3 text-sm font-medium text-slate-400 transition hover:border-coral-500/40 hover:text-coral-300"
-          >
-            Se déconnecter
-          </button>
-        ) : null}
-=======
-  // Step 1 state
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [isAuthPending, setIsAuthPending] = useState(false);
-
-  // Step 2 state
   const [worldIdError, setWorldIdError] = useState<string | null>(null);
 
-  // ── Step 1: Connect wallet + challenge-sign-verify ─────────────────────
-  const handleConnectAndAuth = async () => {
-    setAuthError(null);
-    setIsAuthPending(true);
-    try {
-      await auth.connectAndAuth();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Connection failed";
-      // Don't show error if user simply closed the modal
-      if (!message.includes("User rejected") && !message.includes("dismissed")) {
-        setAuthError(message);
-      }
-    } finally {
-      setIsAuthPending(false);
-    }
+  // ── Dev mock: bypass backend auth entirely ─────────────────────────────
+  const handleDevMockConnect = () => {
+    auth.setAuth("mock-jwt-dev", DEV_MOCK_WALLET, DEV_MOCK_NAME);
   };
 
   // ── Step 2: World ID ───────────────────────────────────────────────────
   const handleWorldIdVerify = async (result: ISuccessResult) => {
-    if (!auth.jwt) throw new Error("JWT missing - reconnect your wallet.");
+    if (!auth.jwt) throw new Error("JWT missing — reconnect your wallet.");
     setWorldIdError(null);
-
     const data = await verifyWorldId(
       {
         proof: result.proof,
@@ -116,10 +47,7 @@ export function MyAccountPage() {
       },
       auth.jwt,
     );
-
-    if (!data.verified) {
-      throw new Error("World ID verification failed.");
-    }
+    if (!data.verified) throw new Error("World ID verification failed.");
   };
 
   const onWorldIdSuccess = () => {
@@ -134,36 +62,35 @@ export function MyAccountPage() {
   // ── Fully authenticated view ───────────────────────────────────────────
   if (auth.isReady) {
     return (
-      <Layout title="My Account">
+      <Layout title="Mon compte">
         <div className="mt-4 space-y-5">
           <div className="flex items-center gap-3 rounded-2xl border border-reef-500/30 bg-reef-500/10 px-4 py-3">
             <WorldIdOrb className="h-8 w-8 shrink-0 text-reef-300" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foam">
-                {auth.name} — World ID verified
+                {auth.name ?? auth.wallet} — World ID verified
               </p>
               <p className="mt-0.5 font-mono text-[10px] text-slate-500 break-all">
                 {auth.wallet}
               </p>
             </div>
           </div>
-
           <button
             type="button"
-            onClick={() => void auth.logout()}
+            onClick={auth.logout}
             className="w-full rounded-2xl border border-slate-700 bg-abyss-850 py-3 text-sm font-medium text-slate-400 transition hover:border-coral-500/40 hover:text-coral-300"
           >
-            Disconnect
+            Se déconnecter
           </button>
         </div>
       </Layout>
     );
   }
 
-  // ── Step 2: World ID verification (wallet connected, not yet verified) ─
+  // ── Step 2: World ID verification (JWT acquired, World ID pending) ─────
   if (auth.jwt) {
     return (
-      <Layout title="Verification">
+      <Layout title="Vérification">
         <div className="mt-6 flex flex-col items-center gap-8">
           <div className="flex h-24 w-24 items-center justify-center rounded-full border border-lagoon-500/20 bg-abyss-800/80 shadow-glow">
             <WorldIdOrb className="h-12 w-12 text-lagoon-400" />
@@ -171,17 +98,17 @@ export function MyAccountPage() {
 
           <div className="space-y-2 text-center">
             <h2 className="font-display text-2xl font-semibold text-foam">
-              Verify your identity
+              Vérifiez votre identité
             </h2>
             <p className="text-balance text-sm text-slate-400">
-              Welcome{auth.name ? `, ${auth.name}` : ""}! A World ID is required
-              to submit sightings and earn{" "}
-              <strong className="text-foam">SHARKY</strong> rewards.
+              Bienvenue{auth.name ? `, ${auth.name}` : ""} ! Un World ID est requis
+              pour soumettre une observation et recevoir des récompenses{" "}
+              <strong className="text-foam">OCEAN</strong>.
             </p>
           </div>
 
           {worldIdError ? (
-            <p className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-300" role="alert">
+            <p className="w-full rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-300" role="alert">
               {worldIdError}
             </p>
           ) : null}
@@ -201,7 +128,7 @@ export function MyAccountPage() {
                 className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 py-4 font-semibold text-abyss-950 shadow-glow transition hover:from-reef-400 hover:to-lagoon-500"
               >
                 <WorldIdOrb className="h-5 w-5" />
-                Continue with World ID
+                Continuer avec World ID
               </button>
             )}
           </IDKitWidget>
@@ -212,83 +139,62 @@ export function MyAccountPage() {
               onClick={onWorldIdSuccess}
               className="w-full rounded-2xl border border-dashed border-lagoon-500/30 bg-abyss-900/60 py-3 text-sm font-medium text-lagoon-400/70 transition hover:border-lagoon-500/60 hover:text-lagoon-300"
             >
-              Mock World ID (dev only)
+              ⚙ Mock World ID (dev only)
             </button>
           )}
 
           <button
             type="button"
-            onClick={() => void auth.logout()}
+            onClick={auth.logout}
             className="w-full rounded-2xl border border-slate-700 bg-abyss-850 py-3 text-sm font-medium text-slate-400 transition hover:border-coral-500/40 hover:text-coral-300"
           >
-            Disconnect
+            Se déconnecter
           </button>
 
           <p className="text-center text-xs text-slate-600">
-            World ID protects your privacy via zero-knowledge proofs.
-            No personal data is shared.
+            World ID protège votre vie privée via une preuve à divulgation nulle.
+            Aucune donnée personnelle n'est partagée.
           </p>
         </div>
       </Layout>
     );
   }
 
-  // ── Step 1: Connect wallet ─────────────────────────────────────────────
+  // ── Step 1: Connect Hedera wallet ──────────────────────────────────────
   return (
-    <Layout title="Connect">
+    <Layout title="Connexion">
       <div className="mt-4 space-y-6">
         <p className="text-sm text-slate-400">
-          Connect your <strong className="text-foam">Hedera</strong> wallet
-          to access OceanWatch. We support{" "}
-          <strong className="text-foam">HashPack</strong>,{" "}
-          <strong className="text-foam">Blade</strong>, and other
-          WalletConnect-compatible wallets.
+          Connectez votre wallet <strong className="text-foam">Hedera</strong>{" "}
+          pour accéder à OceanWatch.
         </p>
 
-        {authError ? (
-          <p className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-300" role="alert">
-            {authError}
-          </p>
-        ) : null}
+        <div className="rounded-xl border border-lagoon-500/20 bg-abyss-800/60 px-4 py-3 text-xs text-slate-500">
+          <strong className="text-lagoon-400">Bientôt disponible :</strong> la connexion
+          via <span className="text-foam">HashPack</span> ou{" "}
+          <span className="text-foam">WalletConnect</span> sera intégrée prochainement.
+        </div>
 
-        <button
-          type="button"
-          onClick={() => void handleConnectAndAuth()}
-          disabled={isAuthPending || auth.isInitializing}
-          className={[
-            "w-full rounded-2xl py-3.5 font-semibold transition",
-            isAuthPending || auth.isInitializing
-              ? "cursor-wait bg-abyss-800 text-slate-500"
-              : "bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 text-abyss-950 shadow-glow hover:from-reef-400 hover:to-lagoon-500",
-          ].join(" ")}
-        >
-          {auth.isInitializing
-            ? "Initializing..."
-            : isAuthPending
-              ? "Connecting..."
-              : "Connect Wallet"}
-        </button>
-
-        {connectedButNoJwt(auth) && (
-          <p className="text-center font-mono text-xs text-slate-500">
-            {auth.connectedAccountId}
-          </p>
+        {/* Dev-only mock Hedera connection */}
+        {import.meta.env.DEV && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="h-px flex-1 bg-slate-800" />
+              <span className="text-[10px] uppercase tracking-widest text-slate-600">dev only</span>
+              <div className="h-px flex-1 bg-slate-800" />
+            </div>
+            <button
+              type="button"
+              onClick={handleDevMockConnect}
+              className="w-full rounded-2xl border border-dashed border-lagoon-500/30 bg-abyss-900/60 py-3 text-sm font-medium text-lagoon-400/70 transition hover:border-lagoon-500/60 hover:text-lagoon-300"
+            >
+              ⚙ Mock Hedera wallet (dev only)
+            </button>
+          </div>
         )}
-
-        <p className="text-center text-xs text-slate-600">
-          Your wallet signs a one-time message to prove ownership.
-          No transaction fees are charged.
-        </p>
->>>>>>> 539037b (update auth wallet)
       </div>
     </Layout>
   );
-}
-<<<<<<< HEAD
-=======
-
-function connectedButNoJwt(auth: { connectedAccountId: string | null; jwt: string | null }) {
-  return auth.connectedAccountId && !auth.jwt;
 }
 
 function WorldIdOrb({ className }: { className?: string }) {
@@ -301,4 +207,3 @@ function WorldIdOrb({ className }: { className?: string }) {
     </svg>
   );
 }
->>>>>>> 539037b (update auth wallet)
