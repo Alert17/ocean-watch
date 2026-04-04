@@ -1,5 +1,6 @@
 import {
   TokenMintTransaction,
+  TokenBurnTransaction,
   TransferTransaction,
   AccountBalanceQuery,
   AccountId,
@@ -37,18 +38,34 @@ export async function rewardSighting(userAccountId: string, sightingId: string):
   const mintTx = await new TokenMintTransaction()
     .setTokenId(tokenId)
     .setAmount(REWARD_AMOUNT)
+    .setTransactionMemo(`mint:${sightingId}`)
     .execute(client);
 
   await mintTx.getReceipt(client);
 
-  // 2. Transfer from treasury to user (memo = sightingId for on-chain traceability)
-  const transferTx = await new TransferTransaction()
-    .addTokenTransfer(tokenId, operatorId, -REWARD_AMOUNT)
-    .addTokenTransfer(tokenId, user, REWARD_AMOUNT)
-    .setTransactionMemo(`reward:${sightingId}`)
-    .execute(client);
+  // 2. Transfer from treasury to user — rollback mint if transfer fails
+  let transferTx;
+  try {
+    transferTx = await new TransferTransaction()
+      .addTokenTransfer(tokenId, operatorId, -REWARD_AMOUNT)
+      .addTokenTransfer(tokenId, user, REWARD_AMOUNT)
+      .setTransactionMemo(`reward:${sightingId}`)
+      .execute(client);
 
-  await transferTx.getReceipt(client);
+    await transferTx.getReceipt(client);
+  } catch (err) {
+    // Rollback: burn minted tokens to keep supply consistent
+    try {
+      const burnTx = await new TokenBurnTransaction()
+        .setTokenId(tokenId)
+        .setAmount(REWARD_AMOUNT)
+        .execute(client);
+      await burnTx.getReceipt(client);
+    } catch {
+      // Burn failed — supply is inconsistent, needs manual intervention
+    }
+    throw err;
+  }
 
   rewardedSightings.add(sightingId);
 
