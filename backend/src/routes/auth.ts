@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
-import { prisma } from "../db";
 import { RegisterBody, LoginBody } from "../types/auth";
+import { findUserByWallet, createUser } from "../services/auth.service";
 
 const registerSchema = {
   description: "Register a new user by wallet",
@@ -31,15 +31,12 @@ export async function authRoutes(app: FastifyInstance) {
   app.post<{ Body: RegisterBody }>("/register", { schema: registerSchema }, async (request, reply) => {
     const { wallet, name } = request.body;
 
-    const existing = await prisma.user.findUnique({ where: { wallet } });
+    const existing = await findUserByWallet(wallet);
     if (existing) {
       return reply.conflict("User with this wallet already exists");
     }
 
-    const user = await prisma.user.create({
-      data: { wallet, name },
-    });
-
+    const user = await createUser(wallet, name);
     const token = app.jwt.sign({ sub: user.id, wallet: user.wallet });
 
     return reply.code(201).send({ user, token });
@@ -48,7 +45,7 @@ export async function authRoutes(app: FastifyInstance) {
   app.post<{ Body: LoginBody }>("/login", { schema: loginSchema }, async (request, reply) => {
     const { wallet } = request.body;
 
-    const user = await prisma.user.findUnique({ where: { wallet } });
+    const user = await findUserByWallet(wallet);
     if (!user) {
       return reply.notFound("User not found, register first");
     }

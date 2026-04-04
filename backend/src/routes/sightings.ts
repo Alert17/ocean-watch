@@ -1,9 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { v4 as uuid } from "uuid";
-import { submitSighting, rewardSighting } from "../hedera";
-import { Species, Behavior, Sighting, CreateSightingBody } from "../types/sighting";
-import { DEFAULTS } from "../config/constants";
+import { Species, Behavior, CreateSightingBody } from "../types/sighting";
 import { authenticate } from "../plugins/authenticate";
+import { createSighting } from "../services/sighting.service";
 
 const createSightingSchema = {
   description: "Submit a new marine life sighting to HCS and reward observer",
@@ -27,36 +25,12 @@ const createSightingSchema = {
 
 export async function sightingsRoutes(app: FastifyInstance) {
   app.post<{ Body: CreateSightingBody }>("/", { schema: createSightingSchema, onRequest: [authenticate] }, async (request, reply) => {
-    const body = request.body;
-    const wallet = request.user.wallet;
+    const result = await createSighting(request.body, request.user.wallet);
 
-    const sighting: Sighting = {
-      id: uuid(),
-      latitude: body.latitude,
-      longitude: body.longitude,
-      species: body.species ?? DEFAULTS.species,
-      count: body.count ?? DEFAULTS.count,
-      behavior: body.behavior ?? DEFAULTS.behavior,
-      observedAt: body.observedAt,
-      createdAt: new Date().toISOString(),
-      comment: body.comment,
-      mediaUrl: body.mediaUrl,
-      wallet,
-    };
-
-    const hcsResult = await submitSighting(sighting);
-
-    let reward = null;
-    try {
-      reward = await rewardSighting(wallet);
-    } catch (err) {
-      app.log.warn({ err, wallet }, "Failed to reward sighting, token not associated?");
+    if (!result.reward) {
+      app.log.warn({ wallet: request.user.wallet }, "Failed to reward sighting");
     }
 
-    return reply.code(201).send({
-      sighting,
-      sequenceNumber: hcsResult.sequenceNumber,
-      reward,
-    });
+    return reply.code(201).send(result);
   });
 }
