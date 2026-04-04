@@ -15,7 +15,11 @@ export const config = {
 
   worldId: {
     appId: required("WORLDID_APP_ID"),
+    rpId: required("WORLDID_RP_ID"),
+    action: process.env.WORLDID_ACTION || "verify-human",
   },
+
+  isProduction: process.env.NODE_ENV === "production",
 
   pinata: {
     jwt: required("PINATA_JWT"),

@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "../components/Layout";
 import { useAuth } from "../hooks/useAuth";
-import { verifyWorldId } from "../lib/api";
+import { mockWorldIdVerify, verifyWorldId } from "../lib/api";
 
 const WORLD_APP_ID = (import.meta.env.VITE_WORLDID_APP_ID as string) || "app_5e00cf5d85b7fa221f91d0de558c70c3";
 const WORLD_ACTION = (import.meta.env.VITE_WORLDID_ACTION as string) || "verify-human";
@@ -69,6 +69,20 @@ export function MyAccountPage() {
 
   const onWorldIdError = () => {
     setWorldIdError("World ID verification failed. Please try again.");
+  };
+
+  // Dev-only: call backend mock endpoint so the server-side `worldIdVerified`
+  // flag is set too (otherwise sighting submissions will be rejected with 403).
+  const handleMockWorldId = async () => {
+    if (!auth.jwt) return;
+    setWorldIdError(null);
+    try {
+      await mockWorldIdVerify(auth.jwt);
+      onWorldIdSuccess();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Mock verify failed";
+      setWorldIdError(message);
+    }
   };
 
   // ── Fully authenticated view ───────────────────────────────────────────
@@ -149,7 +163,7 @@ export function MyAccountPage() {
           {import.meta.env.DEV && (
             <button
               type="button"
-              onClick={onWorldIdSuccess}
+              onClick={() => void handleMockWorldId()}
               className="w-full rounded-2xl border border-dashed border-lagoon-500/30 bg-abyss-900/60 py-3 text-sm font-medium text-lagoon-400/70 transition hover:border-lagoon-500/60 hover:text-lagoon-300"
             >
               Mock World ID (dev only)
