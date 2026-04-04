@@ -9,7 +9,7 @@ const challengeSchema = {
     type: "object",
     required: ["wallet"],
     properties: {
-      wallet: { type: "string", description: "Hedera Account ID (0.0.xxx)" },
+      wallet: { type: "string", pattern: "^0\\.0\\.\\d+$", description: "Hedera Account ID (0.0.xxx)" },
     },
   },
 };
@@ -21,10 +21,10 @@ const verifySchema = {
     type: "object",
     required: ["wallet", "nonce", "signature"],
     properties: {
-      wallet: { type: "string", description: "Hedera Account ID (0.0.xxx)" },
-      nonce: { type: "string" },
-      signature: { type: "string", description: "Hex-encoded signature of the challenge message" },
-      name: { type: "string" },
+      wallet: { type: "string", pattern: "^0\\.0\\.\\d+$", description: "Hedera Account ID (0.0.xxx)" },
+      nonce: { type: "string", minLength: 64, maxLength: 64 },
+      signature: { type: "string", pattern: "^[0-9a-fA-F]+$", description: "Hex-encoded signature" },
+      name: { type: "string", maxLength: 100 },
     },
   },
 };
