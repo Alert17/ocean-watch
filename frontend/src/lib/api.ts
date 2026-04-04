@@ -77,25 +77,37 @@ function authHeaders(jwt: string): Record<string, string> {
   };
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────
+// ── Auth (challenge-sign-verify) ─────────────────────────────────────────
 
-/** POST /auth/login — returns JWT if user exists. */
-export async function loginUser(wallet: string): Promise<AuthResponse> {
-  const res = await fetch(`${BASE}/auth/login`, {
+export interface ChallengeResponse {
+  nonce: string;
+  message: string;
+  expiresAt: string;
+}
+
+export interface VerifyPayload {
+  wallet: string;
+  nonce: string;
+  signature: string;
+}
+
+/** POST /auth/challenge — requests a nonce + message to sign. */
+export async function requestChallenge(wallet: string): Promise<ChallengeResponse> {
+  const res = await fetch(`${BASE}/auth/challenge`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ wallet }),
   });
   if (!res.ok) throw await toError(res);
-  return res.json() as Promise<AuthResponse>;
+  return res.json() as Promise<ChallengeResponse>;
 }
 
-/** POST /auth/register — creates user and returns JWT. */
-export async function registerUser(wallet: string, name: string): Promise<AuthResponse> {
-  const res = await fetch(`${BASE}/auth/register`, {
+/** POST /auth/verify — submits signed challenge for JWT. */
+export async function verifySignature(payload: VerifyPayload): Promise<AuthResponse> {
+  const res = await fetch(`${BASE}/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ wallet, name }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) throw await toError(res);
   return res.json() as Promise<AuthResponse>;
