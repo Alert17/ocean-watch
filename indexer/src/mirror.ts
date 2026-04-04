@@ -35,7 +35,7 @@ export async function fetchSightings(): Promise<Sighting[]> {
 
     for (const msg of data.messages) {
       const parsed = decodeMessage(msg.message);
-      if (!parsed || parsed.type !== "sighting") continue;
+      if (!parsed || !parsed.id) continue;
 
       sightings.push({
         id: parsed.id as string,
