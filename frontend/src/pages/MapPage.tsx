@@ -25,7 +25,7 @@ import { classifySightings } from "../lib/landValidator";
 
 /** World view centred on Isla Cozumel */
 const WORLD_CENTER: L.LatLngExpression = [20.42, -86.92];
-const WORLD_ZOOM = 5;
+const WORLD_ZOOM = 4;
 
 // ── Filter types ───────────────────────────────────────────────────────────
 

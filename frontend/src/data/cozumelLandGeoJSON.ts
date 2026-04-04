@@ -1,22 +1,25 @@
 /**
- * Simplified GeoJSON land polygon for Isla Cozumel.
+ * GeoJSON land polygons for the Cozumel region (~150 km radius).
  *
- * Used to validate that sighting coordinates fall in the sea,
- * not on land. Coordinates are [longitude, latitude] per GeoJSON spec.
+ * Covers:
+ *   1. Isla Cozumel           — the island itself
+ *   2. Yucatan Peninsula      — Riviera Maya coastline (Cancun → Punta Allen)
+ *                               plus inland mass to the west
+ *
+ * Used by landValidator.ts to reject sighting coordinates on land.
+ * Coordinates are [longitude, latitude] per GeoJSON spec.
  *
  * Source: manually digitised from OpenStreetMap / satellite imagery.
- * For production accuracy, replace with the full OSM coastline extract
- * (e.g. Natural Earth 10m or OpenStreetMap PBF → coastline extract).
+ * For world-wide production coverage, replace COZUMEL_LAND_GEOJSON with
+ * the Natural Earth 10 m coastline (ne_10m_land.geojson, ~8 MB) or an
+ * OSM coastline extract for the Caribbean bounding box.
  *
- * Ring is closed (first point === last point) and wound clockwise
- * (exterior ring per GeoJSON spec — point-in-polygon works either way).
+ * All rings are closed (first vertex === last vertex).
  */
 
-/**
- * A single GeoJSON Polygon ring for Isla Cozumel.
- * Vertices go roughly clockwise starting from the northern tip.
- * Each entry is [longitude, latitude].
- */
+// ── 1. Isla Cozumel ─────────────────────────────────────────────────────
+// 28-vertex outline, clockwise from the northern tip.
+
 const COZUMEL_RING: [number, number][] = [
   // ── Northern tip ──────────────────────────────────────────
   [-86.960, 20.570],
@@ -54,14 +57,57 @@ const COZUMEL_RING: [number, number][] = [
   [-87.020, 20.515],
   [-86.990, 20.538],
   [-86.968, 20.556],
-  // ── Close ring back to northern tip ───────────────────────
+  // ── Close ring ────────────────────────────────────────────
   [-86.960, 20.570],
 ];
 
+// ── 2. Yucatan Peninsula — Caribbean (east) coast ───────────────────────
+// Covers the Riviera Maya from Cabo Catoche (NE tip) down to ~19°N,
+// then sweeps far west to include the entire peninsula mass.
+// This catches misplaced pins on Cancun, Playa del Carmen, Tulum, etc.
+//
+// Coastline key reference points:
+//   Cabo Catoche NE tip : 21.60°N, -87.08°W
+//   Cancun              : 21.17°N, -86.83°W
+//   Playa del Carmen    : 20.63°N, -87.08°W
+//   Xcaret              : 20.58°N, -87.12°W
+//   Akumal              : 20.40°N, -87.32°W
+//   Tulum               : 20.21°N, -87.46°W
+//   Punta Allen         : 19.80°N, -87.48°W
+//
+// The polygon then closes through the interior (-92°W) — a large
+// catch-all boundary for the western landmass.
+
+const YUCATAN_RING: [number, number][] = [
+  // ── NW interior corner ────────────────────────────────────
+  [-92.00, 21.80],
+  // ── NE tip (Cabo Catoche) ─────────────────────────────────
+  [-87.10, 21.60],
+  // ── Cancun coast ──────────────────────────────────────────
+  [-86.83, 21.17],
+  [-86.83, 21.00],  // S end of Cancun hotel zone / Punta Nizuc
+  // ── Riviera Maya coast (south) ────────────────────────────
+  [-87.08, 20.63],  // Playa del Carmen
+  [-87.12, 20.58],  // Xcaret
+  [-87.32, 20.40],  // Akumal
+  [-87.46, 20.21],  // Tulum
+  [-87.48, 19.80],  // Punta Allen
+  // ── Southern boundary (~150 km from Cozumel) ─────────────
+  [-87.60, 19.10],
+  // ── SW interior corner ────────────────────────────────────
+  [-92.00, 19.10],
+  // ── Close ring through interior ───────────────────────────
+  [-92.00, 21.80],
+];
+
+// ── FeatureCollection ────────────────────────────────────────────────────
+
 /**
- * GeoJSON FeatureCollection containing land polygons for the Cozumel area.
- * Add additional Feature entries here for other nearby islands / mainland
- * sections if your sighting area extends beyond Cozumel.
+ * All land polygons within ~150 km of Isla Cozumel.
+ * Pass this to `classifySightings()` in landValidator.ts.
+ *
+ * To extend coverage globally, append additional Feature objects here or
+ * swap the entire export for a world-coastline FeatureCollection.
  */
 export const COZUMEL_LAND_GEOJSON: import("geojson").FeatureCollection = {
   type: "FeatureCollection",
@@ -72,6 +118,14 @@ export const COZUMEL_LAND_GEOJSON: import("geojson").FeatureCollection = {
       geometry: {
         type: "Polygon",
         coordinates: [COZUMEL_RING],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "Yucatan Peninsula" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [YUCATAN_RING],
       },
     },
   ],
