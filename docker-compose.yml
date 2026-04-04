@@ -31,6 +31,8 @@ services:
       PINATA_JWT: ${PINATA_JWT}
       PINATA_GATEWAY: ${PINATA_GATEWAY:-gateway.pinata.cloud}
       WORLDID_APP_ID: ${WORLDID_APP_ID}
+      WORLDID_RP_ID: ${WORLDID_RP_ID}
+      WORLDID_ACTION: ${WORLDID_ACTION:-verify-human}
     ports:
       - "127.0.0.1:3001:3001"
 
