@@ -18,6 +18,8 @@ export const config = {
     operatorKey: required("HEDERA_OPERATOR_KEY"),
     topicId: required("HEDERA_TOPIC_ID"),
     tokenId: required("HEDERA_TOKEN_ID"),
+    treasuryAccountId: required("HEDERA_TREASURY_ACCOUNT_ID"),
+    treasuryKey: required("HEDERA_TREASURY_KEY"),
     platformAccountId: required("HEDERA_PLATFORM_ACCOUNT_ID"),
   },
 } as const;

@@ -6,7 +6,7 @@ import {
   AccountId,
   Hbar,
 } from "@hashgraph/sdk";
-import { client, operatorId, tokenId, platformAccountId } from "./client";
+import { client, operatorId, operatorKey, tokenId, treasuryAccountId, treasuryKey, platformAccountId } from "./client";
 import { TokenPriceInfo, DonationResult, RedeemResult } from "./types";
 
 const PLATFORM_FEE_PERCENT = 20;
@@ -15,7 +15,7 @@ const DECIMALS = 100; // 10^2
 
 export async function getTreasuryBalance(): Promise<number> {
   const balance = await new AccountBalanceQuery()
-    .setAccountId(operatorId)
+    .setAccountId(treasuryAccountId)
     .execute(client);
 
   return balance.hbars.toBigNumber().toNumber();
@@ -50,7 +50,7 @@ export async function processDonation(
 
   const tx = await new TransferTransaction()
     .addHbarTransfer(donor, new Hbar(-amountHbar))
-    .addHbarTransfer(operatorId, new Hbar(treasuryAmount))
+    .addHbarTransfer(treasuryAccountId, new Hbar(treasuryAmount))
     .addHbarTransfer(platformAccountId, new Hbar(platformAmount))
     .execute(client);
 
@@ -76,7 +76,7 @@ export async function processRedeem(
   const hbarShareRaw = (tokenAmount / circulatingSupply) * treasuryBalance;
   const hbarShare = Math.floor(hbarShareRaw * 1e8) / 1e8; // round down to tinybars
 
-  // 1. Transfer tokens from user to treasury
+  // 1. Transfer tokens from user to operator (for burning)
   const transferTx = await new TransferTransaction()
     .addTokenTransfer(tokenId, user, -rawAmount)
     .addTokenTransfer(tokenId, operatorId, rawAmount)
@@ -84,7 +84,7 @@ export async function processRedeem(
 
   await transferTx.getReceipt(client);
 
-  // 2. Burn tokens
+  // 2. Burn tokens (operator is supplyKey)
   const burnTx = await new TokenBurnTransaction()
     .setTokenId(tokenId)
     .setAmount(rawAmount)
@@ -92,13 +92,16 @@ export async function processRedeem(
 
   await burnTx.getReceipt(client);
 
-  // 3. Send HBAR to user
+  // 3. Send HBAR from treasury to user
   const hbarTx = await new TransferTransaction()
-    .addHbarTransfer(operatorId, new Hbar(-hbarShare))
+    .addHbarTransfer(treasuryAccountId, new Hbar(-hbarShare))
     .addHbarTransfer(user, new Hbar(hbarShare))
-    .execute(client);
+    .freezeWith(client)
+    .sign(treasuryKey);
 
-  await hbarTx.getReceipt(client);
+  const hbarTxSubmit = await (await hbarTx).execute(client);
+
+  await hbarTxSubmit.getReceipt(client);
 
   const newPrice = await getTokenPrice();
 
@@ -106,6 +109,6 @@ export async function processRedeem(
     hbarAmount: hbarShare,
     tokensBurned: tokenAmount,
     newTokenPrice: newPrice.pricePerToken,
-    transactionId: hbarTx.transactionId.toString(),
+    transactionId: hbarTxSubmit.transactionId.toString(),
   };
 }
