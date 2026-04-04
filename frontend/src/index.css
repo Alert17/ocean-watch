@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased text-foam/95;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-dvh bg-abyss-950;
+    background-image: radial-gradient(
+        ellipse 100% 60% at 50% -10%,
+        rgba(14, 165, 233, 0.12),
+        transparent 50%
+      ),
+      linear-gradient(180deg, #061222 0%, #030910 100%);
+  }
+
+  #root {
+    @apply min-h-dvh;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .safe-pb {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* MapLibre */
+.maplibregl-ctrl-attrib {
+  @apply text-[10px] opacity-80;
+  background: rgba(6, 18, 34, 0.85) !important;
+  color: #94a3b8 !important;
+}
+
+.maplibregl-ctrl-attrib a {
+  @apply text-lagoon-400;
+}
