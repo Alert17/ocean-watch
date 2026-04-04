@@ -1,7 +1,4 @@
-import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { persistConnectedHederaAccount } from "../hooks/useAuth";
-import { connectHederaWallet } from "../lib/hederaWallet";
 
 const links = [
   { to: "/", label: "Home", icon: HomeIcon },
@@ -13,31 +10,11 @@ const links = [
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const onAccount =
-    location.pathname === "/my-account" || location.pathname === "/world-id";
+  const onAccount = location.pathname === "/my-account";
 
   const handleMyAccount = () => {
-    void (async () => {
-      setError(null);
-      setBusy(true);
-      try {
-        const accountId = await connectHederaWallet();
-        persistConnectedHederaAccount(accountId);
-        navigate("/my-account");
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : "Unable to connect";
-        const quiet =
-          /reject|closed|cancel|annul/i.test(msg) || msg.includes("User rejected");
-        if (!quiet) {
-          setError(msg);
-        }
-      } finally {
-        setBusy(false);
-      }
-    })();
+    navigate("/my-account");
   };
 
   const itemClass = (isActive: boolean) =>
@@ -52,11 +29,6 @@ export function BottomNav() {
       aria-label="Main navigation"
     >
       <div className="mx-auto max-w-lg px-1 pt-1">
-        {error ? (
-          <p className="px-2 pb-1 text-center text-[10px] text-coral-300" role="alert">
-            {error}
-          </p>
-        ) : null}
         <div className="flex justify-between gap-0.5 pb-2 pt-1">
           {links.map(({ to, label, icon: Icon }) => (
             <NavLink
@@ -71,14 +43,9 @@ export function BottomNav() {
           ))}
           <button
             type="button"
-            disabled={busy}
             onClick={handleMyAccount}
-            className={[
-              itemClass(onAccount),
-              busy ? "cursor-wait opacity-70" : "",
-            ].join(" ")}
+            className={itemClass(onAccount)}
             aria-label="My account"
-            aria-busy={busy}
             aria-current={onAccount ? "page" : undefined}
           >
             <UserCircleIcon className="h-6 w-6 shrink-0" aria-hidden />
