@@ -17,7 +17,7 @@ const createSightingSchema = {
     properties: {
       latitude: { type: "number", minimum: -90, maximum: 90 },
       longitude: { type: "number", minimum: -180, maximum: 180 },
-      species: { type: "string", enum: Object.values(Species), default: Species.WHITE_SHARK },
+      species: { type: "string", enum: Object.values(Species), default: Species.UNKNOWN },
       count: { type: "integer", minimum: 1, maximum: 1000, default: 1 },
       behavior: { type: "string", enum: Object.values(Behavior), default: Behavior.UNKNOWN },
       observedAt: { type: "string", format: "date-time" },

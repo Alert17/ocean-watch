@@ -40,7 +40,7 @@ function parseSighting(parsed: Record<string, unknown>, sequenceNumber: number, 
   // Enum validation with fallback
   const species = validSpecies.has(parsed.species as Species)
     ? (parsed.species as Species)
-    : Species.WHITE_SHARK;
+    : Species.UNKNOWN;
 
   const behavior = validBehaviors.has(parsed.behavior as Behavior)
     ? (parsed.behavior as Behavior)

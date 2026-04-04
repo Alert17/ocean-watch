@@ -1,21 +1,27 @@
 import { Species, Behavior } from "../types/sighting";
 
 export const SPECIES_LABELS: Record<Species, string> = {
-  [Species.WHITE_SHARK]: "Great White Shark",
+  [Species.NURSE_SHARK]: "Nurse Shark",
+  [Species.CARIBBEAN_REEF_SHARK]: "Caribbean Reef Shark",
+  [Species.GREAT_HAMMERHEAD_SHARK]: "Great Hammerhead Shark",
+  [Species.HAMMERHEAD_SHARK]: "Hammerhead Shark",
+  [Species.BULL_SHARK]: "Bull Shark",
+  [Species.TIGER_SHARK]: "Tiger Shark",
+  [Species.UNKNOWN]: "Unknown",
 };
 
 export const BEHAVIOR_LABELS: Record<Behavior, string> = {
   [Behavior.FEEDING]: "Feeding",
   [Behavior.MIGRATING]: "Migrating",
   [Behavior.RESTING]: "Resting",
-  [Behavior.PLAYING]: "Playing",
+  [Behavior.MATING]: "Mating",
   [Behavior.HUNTING]: "Hunting",
   [Behavior.STRANDED]: "Stranded",
   [Behavior.UNKNOWN]: "Unknown",
 };
 
 export const DEFAULTS = {
-  species: Species.WHITE_SHARK,
+  species: Species.UNKNOWN,
   behavior: Behavior.UNKNOWN,
   count: 1,
 } as const;
