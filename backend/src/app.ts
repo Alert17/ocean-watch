@@ -3,6 +3,7 @@ import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import sensible from "./plugins/sensible";
 import { sightingsRoutes } from "./routes/sightings";
+import { tokenRoutes } from "./routes/token";
 
 const app = Fastify({ logger: true });
 
@@ -22,6 +23,7 @@ app.register(swaggerUi, {
 
 app.register(sensible);
 app.register(sightingsRoutes, { prefix: "/sightings" });
+app.register(tokenRoutes, { prefix: "/token" });
 
 app.get("/health", async () => ({ status: "ok" }));
 

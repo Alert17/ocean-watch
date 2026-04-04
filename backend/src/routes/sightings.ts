@@ -1,34 +1,25 @@
 import { FastifyInstance } from "fastify";
 import { v4 as uuid } from "uuid";
-import { submitSighting } from "../services/hedera";
+import { submitSighting, rewardSighting } from "../hedera";
 import { Species, Behavior, Sighting } from "../types/sighting";
 import { DEFAULTS } from "../config/constants";
 
 const createSightingSchema = {
-  description: "Submit a new marine life sighting to HCS",
+  description: "Submit a new marine life sighting to HCS and reward observer",
   tags: ["sightings"],
   body: {
     type: "object",
     required: ["latitude", "longitude", "observedAt", "wallet"],
     properties: {
-      latitude: { type: "number", description: "Latitude coordinate" },
-      longitude: { type: "number", description: "Longitude coordinate" },
+      latitude: { type: "number" },
+      longitude: { type: "number" },
       species: { type: "string", enum: Object.values(Species), default: Species.WHITE_SHARK },
       count: { type: "number", default: 1 },
       behavior: { type: "string", enum: Object.values(Behavior), default: Behavior.UNKNOWN },
-      observedAt: { type: "string", format: "date-time", description: "When the sighting occurred" },
+      observedAt: { type: "string", format: "date-time" },
       comment: { type: "string" },
-      mediaUrl: { type: "string", description: "IPFS link to media" },
+      mediaUrl: { type: "string" },
       wallet: { type: "string", description: "Hedera Account ID of observer" },
-    },
-  },
-  response: {
-    201: {
-      type: "object",
-      properties: {
-        sighting: { type: "object" },
-        sequenceNumber: { type: "string" },
-      },
     },
   },
 };
@@ -75,11 +66,19 @@ export async function sightingsRoutes(app: FastifyInstance) {
       wallet: body.wallet,
     };
 
-    const result = await submitSighting(sighting);
+    const hcsResult = await submitSighting(sighting);
+
+    let reward = null;
+    try {
+      reward = await rewardSighting(body.wallet);
+    } catch (err) {
+      app.log.warn({ err, wallet: body.wallet }, "Failed to reward sighting, token not associated?");
+    }
 
     return reply.code(201).send({
       sighting,
-      sequenceNumber: result.sequenceNumber,
+      sequenceNumber: hcsResult.sequenceNumber,
+      reward,
     });
   });
 }
