@@ -5,12 +5,15 @@ import {
   processDonation,
   processRedeem,
 } from "../hedera";
+import { authenticate } from "../plugins/authenticate";
+import { tokenPriceResponse, tokenBalanceResponse, donateResponse, redeemResponse } from "../schemas/responses";
 
 export async function tokenRoutes(app: FastifyInstance) {
   app.get("/price", {
     schema: {
       description: "Get current OCEAN token price (treasury balance / supply)",
       tags: ["token"],
+      response: tokenPriceResponse,
     },
   }, async () => {
     return getTokenPrice();
@@ -20,6 +23,13 @@ export async function tokenRoutes(app: FastifyInstance) {
     schema: {
       description: "Get OCEAN balance for an account",
       tags: ["token"],
+      response: tokenBalanceResponse,
+      params: {
+        type: "object",
+        properties: {
+          accountId: { type: "string", pattern: "^0\\.0\\.\\d+$" },
+        },
+      },
     },
   }, async (request) => {
     const balance = await getContributorBalance(request.params.accountId);
@@ -30,20 +40,23 @@ export async function tokenRoutes(app: FastifyInstance) {
     schema: {
       description: "Donate HBAR to treasury (80% redeemable, 20% platform)",
       tags: ["token"],
+      security: [{ bearerAuth: [] }],
+      response: donateResponse,
       body: {
         type: "object",
         required: ["donorAccountId", "amountHbar"],
         properties: {
-          donorAccountId: { type: "string" },
-          amountHbar: { type: "number" },
+          donorAccountId: { type: "string", pattern: "^0\\.0\\.\\d+$" },
+          amountHbar: { type: "number", exclusiveMinimum: 0, maximum: 1_000_000 },
         },
       },
     },
+    onRequest: [authenticate],
   }, async (request, reply) => {
     const { donorAccountId, amountHbar } = request.body;
 
-    if (amountHbar <= 0) {
-      return reply.badRequest("amountHbar must be positive");
+    if (donorAccountId !== request.user.wallet) {
+      return reply.forbidden("Cannot donate from another wallet");
     }
 
     const result = await processDonation(donorAccountId, amountHbar);
@@ -54,20 +67,23 @@ export async function tokenRoutes(app: FastifyInstance) {
     schema: {
       description: "Redeem OCEAN tokens for HBAR share of treasury",
       tags: ["token"],
+      security: [{ bearerAuth: [] }],
+      response: redeemResponse,
       body: {
         type: "object",
         required: ["userAccountId", "tokenAmount"],
         properties: {
-          userAccountId: { type: "string" },
-          tokenAmount: { type: "number" },
+          userAccountId: { type: "string", pattern: "^0\\.0\\.\\d+$" },
+          tokenAmount: { type: "number", exclusiveMinimum: 0, maximum: 1_000_000 },
         },
       },
     },
+    onRequest: [authenticate],
   }, async (request, reply) => {
     const { userAccountId, tokenAmount } = request.body;
 
-    if (tokenAmount <= 0) {
-      return reply.badRequest("tokenAmount must be positive");
+    if (userAccountId !== request.user.wallet) {
+      return reply.forbidden("Cannot redeem from another wallet");
     }
 
     const result = await processRedeem(userAccountId, tokenAmount);

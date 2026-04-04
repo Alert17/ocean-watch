@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import multipart from "@fastify/multipart";
+import rateLimit from "@fastify/rate-limit";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import sensible from "./plugins/sensible";
@@ -12,6 +13,8 @@ import { tokenRoutes } from "./routes/token";
 import { userRoutes } from "./routes/user";
 import { uploadRoutes } from "./routes/upload";
 import { worldIdRoutes } from "./routes/worldid";
+import { MAX_FILE_SIZE } from "./config/constants";
+import { prisma } from "./db";
 
 const app = Fastify({ logger: true });
 
@@ -39,8 +42,9 @@ app.register(swaggerUi, {
 });
 
 app.register(cors, { origin: true });
+app.register(rateLimit, { max: 100, timeWindow: "1 minute" });
 app.register(jwt, { secret: config.jwtSecret });
-app.register(multipart, { limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB max
+app.register(multipart, { limits: { fileSize: MAX_FILE_SIZE } });
 app.register(sensible);
 app.register(authRoutes, { prefix: "/auth" });
 app.register(sightingsRoutes, { prefix: "/sightings" });
@@ -49,6 +53,13 @@ app.register(userRoutes, { prefix: "/user" });
 app.register(uploadRoutes, { prefix: "/upload" });
 app.register(worldIdRoutes, { prefix: "/worldid" });
 
-app.get("/health", async () => ({ status: "ok" }));
+app.get("/health", async (_request, reply) => {
+  try {
+    await prisma.$queryRawUnsafe("SELECT 1");
+    return { status: "ok" };
+  } catch {
+    return reply.serviceUnavailable("database unreachable");
+  }
+});
 
 export default app;

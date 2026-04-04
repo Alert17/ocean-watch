@@ -30,5 +30,6 @@ export const config = {
     treasuryAccountId: required("HEDERA_TREASURY_ACCOUNT_ID"),
     treasuryKey: required("HEDERA_TREASURY_KEY"),
     platformAccountId: required("HEDERA_PLATFORM_ACCOUNT_ID"),
+    mirrorNodeUrl: process.env.HEDERA_MIRROR_NODE_URL || "https://testnet.mirrornode.hedera.com",
   },
 } as const;

@@ -1,64 +1,58 @@
 import { FastifyInstance } from "fastify";
-import { prisma } from "../db";
+import { ChallengeBody, VerifySignatureBody } from "../types/auth";
+import { findUserByWallet, createUser, createChallenge, verifyChallenge } from "../services/auth.service";
+import { challengeResponse, verifyAuthResponse } from "../schemas/responses";
 
-const registerSchema = {
-  description: "Register a new user by wallet",
+const challengeSchema = {
+  description: "Request a challenge nonce for wallet verification",
   tags: ["auth"],
+  response: challengeResponse,
   body: {
     type: "object",
     required: ["wallet"],
     properties: {
-      wallet: { type: "string", description: "Hedera Account ID (0.0.xxx)" },
-      name: { type: "string" },
+      wallet: { type: "string", pattern: "^0\\.0\\.\\d+$", description: "Hedera Account ID (0.0.xxx)" },
     },
   },
 };
 
-const loginSchema = {
-  description: "Login by wallet, returns JWT",
+const verifySchema = {
+  description: "Verify signed challenge and register/login",
   tags: ["auth"],
+  response: verifyAuthResponse,
   body: {
     type: "object",
-    required: ["wallet"],
+    required: ["wallet", "nonce", "signature"],
     properties: {
-      wallet: { type: "string", description: "Hedera Account ID (0.0.xxx)" },
+      wallet: { type: "string", pattern: "^0\\.0\\.\\d+$", description: "Hedera Account ID (0.0.xxx)" },
+      nonce: { type: "string", minLength: 64, maxLength: 64 },
+      signature: { type: "string", pattern: "^[0-9a-fA-F]+$", description: "Hex-encoded signature" },
+      name: { type: "string", maxLength: 100 },
     },
   },
 };
-
-interface RegisterBody {
-  wallet: string;
-  name?: string;
-}
-
-interface LoginBody {
-  wallet: string;
-}
 
 export async function authRoutes(app: FastifyInstance) {
-  app.post<{ Body: RegisterBody }>("/register", { schema: registerSchema }, async (request, reply) => {
-    const { wallet, name } = request.body;
-
-    const existing = await prisma.user.findUnique({ where: { wallet } });
-    if (existing) {
-      return reply.conflict("User with this wallet already exists");
-    }
-
-    const user = await prisma.user.create({
-      data: { wallet, name },
-    });
-
-    const token = app.jwt.sign({ sub: user.id, wallet: user.wallet });
-
-    return reply.code(201).send({ user, token });
-  });
-
-  app.post<{ Body: LoginBody }>("/login", { schema: loginSchema }, async (request, reply) => {
+  app.post<{ Body: ChallengeBody }>("/challenge", { schema: challengeSchema }, async (request, reply) => {
     const { wallet } = request.body;
 
-    const user = await prisma.user.findUnique({ where: { wallet } });
+    const challenge = await createChallenge(wallet);
+
+    return reply.send(challenge);
+  });
+
+  app.post<{ Body: VerifySignatureBody }>("/verify", { schema: verifySchema }, async (request, reply) => {
+    const { wallet, nonce, signature, name } = request.body;
+
+    const result = await verifyChallenge(wallet, nonce, signature);
+    if (!result.valid) {
+      return reply.unauthorized("Invalid signature or expired challenge");
+    }
+
+    // Register or login
+    let user = await findUserByWallet(wallet);
     if (!user) {
-      return reply.notFound("User not found, register first");
+      user = await createUser(wallet, name, result.publicKeyStr);
     }
 
     const token = app.jwt.sign({ sub: user.id, wallet: user.wallet });
