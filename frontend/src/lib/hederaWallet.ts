@@ -66,7 +66,7 @@ export async function getHederaConnector(): Promise<DAppConnector> {
     await connector.init({ logger: "error" });
 
     if (!connector.walletConnectClient) {
-      throw new Error("WalletConnect n'a pas pu s'initialiser.");
+      throw new Error("WalletConnect could not be initialized.");
     }
 
     return connector;
