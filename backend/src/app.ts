@@ -11,6 +11,7 @@ import { sightingsRoutes } from "./routes/sightings";
 import { tokenRoutes } from "./routes/token";
 import { userRoutes } from "./routes/user";
 import { uploadRoutes } from "./routes/upload";
+import { worldIdRoutes } from "./routes/worldid";
 
 const app = Fastify({ logger: true });
 
@@ -46,6 +47,7 @@ app.register(sightingsRoutes, { prefix: "/sightings" });
 app.register(tokenRoutes, { prefix: "/token" });
 app.register(userRoutes, { prefix: "/user" });
 app.register(uploadRoutes, { prefix: "/upload" });
+app.register(worldIdRoutes, { prefix: "/worldid" });
 
 app.get("/health", async () => ({ status: "ok" }));
 

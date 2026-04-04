@@ -13,6 +13,10 @@ export const config = {
   jwtSecret: required("JWT_SECRET"),
   databaseUrl: required("DATABASE_URL"),
 
+  worldId: {
+    appId: required("WORLDID_APP_ID"),
+  },
+
   pinata: {
     jwt: required("PINATA_JWT"),
     gateway: process.env.PINATA_GATEWAY || "gateway.pinata.cloud",
