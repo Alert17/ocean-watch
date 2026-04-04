@@ -1,7 +1,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# Rollup ships platform-specific binaries as optional deps. If package-lock.json
+# was generated on a different OS (e.g. darwin) than the build host (alpine),
+# `npm ci` — and even `npm install` against the existing lockfile — fails with
+# `Cannot find module @rollup/rollup-linux-x64-musl` (npm/cli#4828).
+# Dropping the lockfile forces npm to resolve the correct native binary for
+# the current platform. We accept the cost of non-deterministic resolution
+# here because the build runs in a clean layer on every deploy.
+RUN rm -f package-lock.json && npm install --no-audit --no-fund
 COPY . .
 ARG VITE_API_URL
 ARG VITE_GRAPHQL_URL
