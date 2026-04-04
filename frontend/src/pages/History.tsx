@@ -4,7 +4,7 @@ import { behaviorLabel, speciesLabel } from "../constants/fieldbook";
 import { fetchMySightings } from "../graphql/api";
 
 function formatWhen(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
+  return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(iso));
@@ -17,10 +17,10 @@ export function HistoryPage() {
   });
 
   return (
-    <Layout title="Historique">
+    <Layout title="History">
       <div className="mt-2 space-y-4">
         <p className="text-sm text-slate-400">
-          Liste de vos observations enregistrées (GraphQL mocké en développement).
+          Your saved sightings (GraphQL mocked in development).
         </p>
 
         {isPending ? (
@@ -39,21 +39,21 @@ export function HistoryPage() {
             className="rounded-2xl border border-coral-500/40 bg-coral-500/10 p-4 text-sm text-coral-200"
             role="alert"
           >
-            Impossible de charger l’historique.
+            Could not load history.
             <button
               type="button"
               className="mt-2 block font-medium text-reef-300 underline"
               onClick={() => void refetch()}
             >
-              Réessayer
+              Try again
             </button>
           </div>
         ) : null}
 
         {data && data.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-lagoon-500/25 bg-abyss-850/50 p-6 text-center text-sm text-slate-400">
-            Aucune observation pour l’instant. Commencez par une déclaration depuis l’onglet{" "}
-            <span className="text-foam">Signaler</span>.
+            No sightings yet. Start with a report from the{" "}
+            <span className="text-foam">Report</span> tab.
           </p>
         ) : null}
 
@@ -76,7 +76,7 @@ export function HistoryPage() {
                   </time>
                 </div>
                 <p className="mt-1 text-sm text-slate-400">
-                  {s.count} individu{s.count > 1 ? "s" : ""} ·{" "}
+                  {s.count} {s.count === 1 ? "individual" : "individuals"} ·{" "}
                   {behaviorLabel(s.behavior)}
                 </p>
                 {s.zoneName ? (

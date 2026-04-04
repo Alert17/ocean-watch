@@ -26,12 +26,12 @@ const formSchema = z
     species: z.enum(speciesValues),
     count: z.coerce.number().int().min(1).max(99),
     behavior: z.enum(behaviorValues),
-    observedAt: z.string().min(1, "Date requise"),
+    observedAt: z.string().min(1, "Date and time required"),
     comment: z.string().optional(),
   })
   .refine((d) => d.zoneId.length > 0, {
     message:
-      "Touchez la carte à l’intérieur d’une zone (surbrillance turquoise) pour associer la position.",
+      "Tap the map inside a zone (turquoise highlight) to set your position.",
     path: ["zoneId"],
   });
 
@@ -103,24 +103,24 @@ export function ReportPage() {
   });
 
   return (
-    <Layout title="Signaler">
+    <Layout title="Report">
       <div className="mt-2 space-y-5">
         <p className="text-sm text-slate-400">
-          Touchez la carte pour placer l’observation dans une zone côtière autour de Cozumel,
-          puis complétez le formulaire.
+          Tap the map to place your sighting in a coastal zone around Cozumel, then complete the
+          form.
         </p>
 
         {zonesQuery.isPending ? (
           <div
             className="h-[min(52vh,22rem)] animate-pulse rounded-2xl bg-abyss-800/70"
             aria-busy
-            aria-label="Chargement de la carte"
+            aria-label="Loading map"
           />
         ) : null}
 
         {zonesQuery.isError ? (
           <p className="text-sm text-coral-300" role="alert">
-            Impossible de charger les zones. Vérifiez la connexion ou le mock MSW.
+            Could not load zones. Check your connection or the MSW mock.
           </p>
         ) : null}
 
@@ -141,7 +141,7 @@ export function ReportPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm">
-              <span className="text-slate-400">Espèce (estimation)</span>
+              <span className="text-slate-400">Species (best estimate)</span>
               <select
                 className="mt-1 w-full rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 focus:ring-2"
                 {...register("species")}
@@ -155,7 +155,7 @@ export function ReportPage() {
             </label>
 
             <label className="block text-sm">
-              <span className="text-slate-400">Nombre d’individus</span>
+              <span className="text-slate-400">Number of individuals</span>
               <input
                 type="number"
                 min={1}
@@ -167,7 +167,7 @@ export function ReportPage() {
           </div>
 
           <label className="block text-sm">
-            <span className="text-slate-400">Comportement observé</span>
+            <span className="text-slate-400">Observed behavior</span>
             <select
               className="mt-1 w-full rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 focus:ring-2"
               {...register("behavior")}
@@ -181,7 +181,7 @@ export function ReportPage() {
           </label>
 
           <label className="block text-sm">
-            <span className="text-slate-400">Date & heure d’observation</span>
+            <span className="text-slate-400">Date & time of sighting</span>
             <input
               type="datetime-local"
               className="mt-1 w-full rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 focus:ring-2"
@@ -195,10 +195,10 @@ export function ReportPage() {
           </label>
 
           <label className="block text-sm">
-            <span className="text-slate-400">Notes de terrain (optionnel)</span>
+            <span className="text-slate-400">Field notes (optional)</span>
             <textarea
               rows={3}
-              placeholder="Profondeur, visibilité, autre espèce présente…"
+              placeholder="Depth, visibility, other species nearby…"
               className="mt-1 w-full resize-none rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 placeholder:text-slate-600 focus:ring-2"
               {...register("comment")}
             />
@@ -206,15 +206,15 @@ export function ReportPage() {
 
           {mutation.isError ? (
             <p className="text-sm text-coral-300" role="alert">
-              Envoi impossible pour le moment.
+              Submission failed. Please try again.
             </p>
           ) : null}
 
           {mutation.isSuccess ? (
             <p className="rounded-xl border border-reef-500/30 bg-reef-500/10 px-3 py-2 text-sm text-reef-200">
-              Observation enregistrée.{" "}
+              Sighting saved.{" "}
               <Link to="/history" className="font-medium underline">
-                Voir l’historique
+                View history
               </Link>
             </p>
           ) : null}
@@ -224,7 +224,7 @@ export function ReportPage() {
             disabled={mutation.isPending || zonesQuery.isPending}
             className="w-full rounded-2xl bg-gradient-to-r from-reef-500 to-lagoon-600 py-3.5 font-semibold text-abyss-950 shadow-glow transition enabled:hover:from-reef-400 enabled:hover:to-lagoon-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {mutation.isPending ? "Envoi…" : "Transmettre l’observation"}
+            {mutation.isPending ? "Sending…" : "Submit sighting"}
           </button>
         </form>
       </div>

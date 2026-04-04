@@ -16,7 +16,7 @@ type Props = {
   onChange: (next: MapPick) => void;
 };
 
-/** Leaflet attend [lat, lng] */
+/** Leaflet uses [lat, lng]. */
 const COZUMEL_CENTER: L.LatLngExpression = [20.42, -86.92];
 
 const zoneStyle: L.PathOptions = {
@@ -122,7 +122,7 @@ export function MapPicker({ zones, value, onChange }: Props) {
         ref={containerRef}
         className="ocean-watch-leaflet-map h-[min(52vh,22rem)] w-full hue-rotate-[12deg] saturate-[0.85] brightness-[0.92] contrast-[1.05]"
         role="application"
-        aria-label="Carte des zones d’observation autour de Cozumel"
+        aria-label="Map of sighting zones around Cozumel"
       />
     </div>
   );

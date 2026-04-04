@@ -1,4 +1,4 @@
-/** Convertit une date ISO en valeur pour `<input type="datetime-local" />` (heure locale). */
+/** Converts an ISO timestamp to a value for `<input type="datetime-local" />` (local time). */
 export function toDatetimeLocalValue(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");

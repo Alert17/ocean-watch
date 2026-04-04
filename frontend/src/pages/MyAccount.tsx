@@ -2,9 +2,9 @@ import { Layout } from "../components/Layout";
 
 export function MyAccountPage() {
   return (
-    <Layout title="Mon compte">
+    <Layout title="My account">
       <p className="mt-2 text-sm text-slate-400">
-        Paramètres du compte et identité (à brancher sur ton auth / portefeuille plus tard).
+        Account settings and identity (to be connected to your auth / wallet later).
       </p>
     </Layout>
   );

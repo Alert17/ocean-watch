@@ -31,7 +31,7 @@ export function Layout({ children, title }: Props) {
               ? "border-reef-400/50 bg-reef-500/15 text-reef-300"
               : "border-lagoon-500/25 bg-abyss-850/80 text-lagoon-400 hover:border-lagoon-400/40 hover:text-foam",
           ].join(" ")}
-          aria-label="Mon compte"
+          aria-label="My account"
           aria-current={onAccount ? "page" : undefined}
         >
           <UserCircleIcon className="h-6 w-6" aria-hidden />

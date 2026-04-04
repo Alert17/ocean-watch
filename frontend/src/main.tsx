@@ -15,7 +15,7 @@ async function enableMocking() {
 }
 
 if (!rootEl) {
-  throw new Error("Élément #root introuvable");
+  throw new Error("#root element not found");
 }
 
 void enableMocking().then(() => {

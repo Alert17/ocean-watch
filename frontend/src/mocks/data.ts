@@ -1,10 +1,10 @@
 import type { Sighting, Zone } from "../graphql/types";
 
-/** Zones pédagogiques autour de Cozumel (polygones simplifiés, [lng, lat]). */
+/** Simplified teaching zones around Cozumel ([lng, lat] polygons). */
 export const MOCK_ZONES: Zone[] = [
   {
     id: "west",
-    name: "Côte sous le vent",
+    name: "Leeward coast",
     slug: "leeward-west",
     polygon: [
       [-87.02, 20.38],
@@ -16,7 +16,7 @@ export const MOCK_ZONES: Zone[] = [
   },
   {
     id: "east",
-    name: "Côte au vent (orient)",
+    name: "Windward coast (east)",
     slug: "windward-east",
     polygon: [
       [-86.91, 20.38],
@@ -28,7 +28,7 @@ export const MOCK_ZONES: Zone[] = [
   },
   {
     id: "south",
-    name: "Sud & récifs profonds",
+    name: "South & deep reefs",
     slug: "south-reef",
     polygon: [
       [-86.98, 20.32],
@@ -40,7 +40,7 @@ export const MOCK_ZONES: Zone[] = [
   },
   {
     id: "north",
-    name: "Nord & canal",
+    name: "North & channel",
     slug: "north-channel",
     polygon: [
       [-86.98, 20.5],
@@ -65,9 +65,9 @@ export function initialMockSightings(): Sighting[] {
       behavior: "resting",
       observedAt: iso(new Date(now.getTime() - 86400000 * 2)),
       createdAt: iso(new Date(now.getTime() - 86400000 * 2)),
-      comment: "Sous le tombant, visibilité ~20 m.",
+      comment: "Along the wall, visibility ~20 m.",
       zoneId: "west",
-      zoneName: "Côte sous le vent",
+      zoneName: "Leeward coast",
     },
     {
       id: "s2",
@@ -80,7 +80,7 @@ export function initialMockSightings(): Sighting[] {
       createdAt: iso(new Date(now.getTime() - 86400000 * 5)),
       comment: null,
       zoneId: "east",
-      zoneName: "Côte au vent (orient)",
+      zoneName: "Windward coast (east)",
     },
   ];
 }

@@ -20,7 +20,7 @@ Nadia and her team access a live dashboard showing all sightings on a real-time 
 
 ---
 
-## Launch projet
+## Run the frontend
 
 ```
 cd frontend

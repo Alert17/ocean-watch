@@ -5,7 +5,7 @@ import { initialMockSightings, MOCK_ZONES } from "./data";
 
 let mockSightings: Sighting[] = initialMockSightings();
 
-/** Correspond à toute origine + chemin `/graphql` (évite les soucis de matching des handlers `graphql.*`). */
+/** Matches any origin + `/graphql` path (avoids flaky `graphql.*` handler matching). */
 const GRAPHQL_URL_RE = /https?:\/\/[^/]+\/graphql\/?$/;
 
 const corsHeaders: Record<string, string> = {
@@ -57,7 +57,7 @@ export const handlers = [
     } | null;
 
     if (!body?.query) {
-      return gqlJson({ errors: [{ message: "Corps GraphQL invalide" }] });
+      return gqlJson({ errors: [{ message: "Invalid GraphQL body" }] });
     }
 
     const op = getOperationName(body);
@@ -78,7 +78,7 @@ export const handlers = [
     if (op === "SubmitSighting") {
       const input = variables.input as SubmitSightingInput | undefined;
       if (!input) {
-        return gqlJson({ errors: [{ message: "input requis" }] });
+        return gqlJson({ errors: [{ message: "Input required" }] });
       }
 
       const createdAt = new Date().toISOString();
@@ -102,7 +102,7 @@ export const handlers = [
     }
 
     return gqlJson({
-      errors: [{ message: op ? `Opération inconnue : ${op}` : "Opération sans nom" }],
+      errors: [{ message: op ? `Unknown operation: ${op}` : "Unnamed operation" }],
     });
   }),
 ];

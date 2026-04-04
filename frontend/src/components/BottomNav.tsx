@@ -1,16 +1,16 @@
 import { NavLink } from "react-router-dom";
 
 const links = [
-  { to: "/", label: "Accueil", icon: HomeIcon },
-  { to: "/report", label: "Signaler", icon: PinIcon },
-  { to: "/history", label: "Historique", icon: LogIcon },
+  { to: "/", label: "Home", icon: HomeIcon },
+  { to: "/report", label: "Report", icon: PinIcon },
+  { to: "/history", label: "History", icon: LogIcon },
 ];
 
 export function BottomNav() {
   return (
     <nav
       className="safe-pb fixed bottom-0 left-0 right-0 z-40 border-t border-lagoon-500/15 bg-abyss-900/90 backdrop-blur-md"
-      aria-label="Navigation principale"
+      aria-label="Main navigation"
     >
       <div className="mx-auto flex max-w-lg justify-around px-2 pt-2">
         {links.map(({ to, label, icon: Icon }) => (

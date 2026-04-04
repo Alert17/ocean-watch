@@ -1,12 +1,12 @@
 {
-  "name": "Mar Sustentable — Observations",
-  "short_name": "Mar Obs",
-  "description": "Observations de requins — Cozumel",
+  "name": "Mar Sustentable — Sightings",
+  "short_name": "Mar Sightings",
+  "description": "Shark sightings — Cozumel",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#061222",
   "theme_color": "#061222",
-  "lang": "fr",
+  "lang": "en",
   "icons": [
     {
       "src": "/favicon.svg",

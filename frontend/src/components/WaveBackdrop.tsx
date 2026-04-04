@@ -1,4 +1,4 @@
-/** Silhouettes de vagues / strates d’eau — inspiration carnet de plongée. */
+/** Wave silhouettes / water layers — dive-logbook inspired. */
 export function WaveBackdrop() {
   return (
     <div
