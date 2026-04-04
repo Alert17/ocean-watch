@@ -50,6 +50,11 @@ export async function tokenRoutes(app: FastifyInstance) {
     onRequest: [authenticate],
   }, async (request, reply) => {
     const { donorAccountId, amountHbar } = request.body;
+
+    if (donorAccountId !== request.user.wallet) {
+      return reply.forbidden("Cannot donate from another wallet");
+    }
+
     const result = await processDonation(donorAccountId, amountHbar);
     return result;
   });
@@ -71,6 +76,11 @@ export async function tokenRoutes(app: FastifyInstance) {
     onRequest: [authenticate],
   }, async (request, reply) => {
     const { userAccountId, tokenAmount } = request.body;
+
+    if (userAccountId !== request.user.wallet) {
+      return reply.forbidden("Cannot redeem from another wallet");
+    }
+
     const result = await processRedeem(userAccountId, tokenAmount);
     return result;
   });
