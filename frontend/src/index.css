@@ -53,3 +53,17 @@
   background: transparent !important;
   border: none !important;
 }
+
+/* ── Congrats page ────────────────────────────────────────── */
+@keyframes ow-scale-in {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes ow-draw-check {
+  from { stroke-dashoffset: 65; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes ow-fade-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
