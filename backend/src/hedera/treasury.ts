@@ -8,10 +8,7 @@ import {
 } from "@hashgraph/sdk";
 import { client, operatorId, operatorKey, tokenId, treasuryAccountId, treasuryKey, platformAccountId } from "./client";
 import { TokenPriceInfo, DonationResult, RedeemResult } from "./types";
-
-const PLATFORM_FEE_PERCENT = 20;
-const TREASURY_PERCENT = 80;
-const DECIMALS = 100; // 10^2
+import { TOKEN_DECIMALS, PLATFORM_FEE_PERCENT, TREASURY_PERCENT } from "../config/constants";
 
 export async function getTreasuryBalance(): Promise<number> {
   const balance = await new AccountBalanceQuery()
@@ -26,7 +23,7 @@ export async function getCirculatingSupply(): Promise<number> {
     .setTokenId(tokenId)
     .execute(client);
 
-  return Number(info.totalSupply) / DECIMALS;
+  return Number(info.totalSupply) / TOKEN_DECIMALS;
 }
 
 export async function getTokenPrice(): Promise<TokenPriceInfo> {
@@ -69,7 +66,7 @@ export async function processRedeem(
   tokenAmount: number,
 ): Promise<RedeemResult> {
   const user = AccountId.fromString(userAccountId);
-  const rawAmount = Math.round(tokenAmount * DECIMALS);
+  const rawAmount = Math.round(tokenAmount * TOKEN_DECIMALS);
 
   const circulatingSupply = await getCirculatingSupply();
   const treasuryBalance = await getTreasuryBalance();

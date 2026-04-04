@@ -6,9 +6,7 @@ import {
 } from "@hashgraph/sdk";
 import { client, operatorId, tokenId } from "./client";
 import { SightingReward } from "./types";
-
-const REWARD_AMOUNT = 10_00; // 10.00 OCEAN (decimals = 2)
-const DECIMALS = 100;
+import { REWARD_AMOUNT, TOKEN_DECIMALS } from "../config/constants";
 
 export async function rewardSighting(userAccountId: string): Promise<SightingReward> {
   // 1. Mint tokens to treasury
@@ -30,7 +28,7 @@ export async function rewardSighting(userAccountId: string): Promise<SightingRew
   await transferTx.getReceipt(client);
 
   return {
-    tokensMinted: REWARD_AMOUNT / DECIMALS,
+    tokensMinted: REWARD_AMOUNT / TOKEN_DECIMALS,
     recipientAccount: userAccountId,
     transactionId: transferTx.transactionId.toString(),
   };
@@ -42,5 +40,5 @@ export async function getContributorBalance(userAccountId: string): Promise<numb
     .execute(client);
 
   const tokenBalance = balance.tokens?.get(tokenId);
-  return tokenBalance ? Number(tokenBalance) / DECIMALS : 0;
+  return tokenBalance ? Number(tokenBalance) / TOKEN_DECIMALS : 0;
 }

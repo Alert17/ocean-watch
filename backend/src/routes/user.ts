@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { prisma } from "../db";
 import { authenticate } from "../plugins/authenticate";
 import { getContributorBalance } from "../hedera";
+import { config } from "../config";
 
 const profileSchema = {
   description: "Get current user profile",
@@ -41,8 +42,7 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.get("/stats", { schema: statsSchema, onRequest: [authenticate] }, async (request, reply) => {
     const wallet = request.user.wallet;
-    const topicId = (await import("../config")).config.hedera.topicId;
-    const mirrorUrl = `https://testnet.mirrornode.hedera.com/api/v1/topics/${topicId}/messages`;
+    const mirrorUrl = `${config.hedera.mirrorNodeUrl}/api/v1/topics/${config.hedera.topicId}/messages`;
 
     let sightingCount = 0;
     let nextLink: string | null = mirrorUrl;
@@ -59,7 +59,7 @@ export async function userRoutes(app: FastifyInstance) {
       }
 
       nextLink = data.links?.next
-        ? `https://testnet.mirrornode.hedera.com${data.links.next}`
+        ? `${config.hedera.mirrorNodeUrl}${data.links.next}`
         : null;
     }
 
