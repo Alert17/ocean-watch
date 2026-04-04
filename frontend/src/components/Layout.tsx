@@ -10,7 +10,8 @@ type Props = {
 
 export function Layout({ children, title }: Props) {
   const location = useLocation();
-  const onAccount = location.pathname === "/my-account";
+  const onAccount =
+    location.pathname === "/my-account" || location.pathname === "/world-id";
 
   return (
     <div className="relative flex min-h-dvh flex-col">
