@@ -1,16 +1,5 @@
 import { config } from "./config";
-import { Sighting } from "./types";
-
-interface MirrorMessage {
-  consensus_timestamp: string;
-  sequence_number: number;
-  message: string;
-}
-
-interface MirrorResponse {
-  messages: MirrorMessage[];
-  links?: { next?: string };
-}
+import { Sighting, MirrorMessage, MirrorResponse } from "./types";
 
 const baseUrl = `${config.hedera.mirrorNodeUrl}/api/v1/topics/${config.hedera.topicId}/messages`;
 

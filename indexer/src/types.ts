@@ -12,6 +12,17 @@ export enum Behavior {
   UNKNOWN = "unknown",
 }
 
+export interface MirrorMessage {
+  consensus_timestamp: string;
+  sequence_number: number;
+  message: string;
+}
+
+export interface MirrorResponse {
+  messages: MirrorMessage[];
+  links?: { next?: string };
+}
+
 export interface Sighting {
   id: string;
   latitude: number;
