@@ -84,9 +84,6 @@ export function HistoryPage() {
                     {s.count} {s.count === 1 ? "individual" : "individuals"} ·{" "}
                     {behaviorLabel(s.behavior)}
                   </p>
-                  <p className="mt-2 text-xs uppercase tracking-wider text-reef-400/90">
-                    Seq. {s.sequenceNumber} · Wallet {s.wallet}
-                  </p>
                   <p className="mt-1 font-mono text-[10px] text-slate-500">
                     {s.latitude.toFixed(4)}°, {s.longitude.toFixed(4)}° · consensus{" "}
                     {s.consensusTimestamp}
