@@ -61,7 +61,7 @@ export function MapPicker({ zones, value, onChange }: Props) {
 
     const map = L.map(el, {
       center: COZUMEL_CENTER,
-      zoom: 11,
+      zoom: 10,
       zoomControl: true,
     });
 
