@@ -118,7 +118,7 @@ export function ReportPage() {
       );
       navigate("/congrats");
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Submission failed.");
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong while submitting.");
     } finally {
       setIsSubmitting(false);
     }
@@ -149,13 +149,13 @@ export function ReportPage() {
     <Layout title="Report">
       <div className="mt-2 space-y-5">
 
-        {/* Context instructions */}
+        {/* ── Context instructions ─────────────────────────── */}
         <p className="text-sm text-slate-400">
-          Drop a pin where you observed a shark near{" "}
+          Drop a pin where you saw a shark off{" "}
           <strong className="text-foam">Cozumel</strong>, then complete the form.
         </p>
 
-        {/* Isla Cozumel map */}
+        {/* ── Isla Cozumel map ──────────────────────────────── */}
         <div className="overflow-hidden rounded-2xl border border-lagoon-500/25 bg-abyss-850/50">
           {/* Map header */}
           <div className="flex items-center justify-between border-b border-lagoon-500/15 px-3 py-2.5">
@@ -250,7 +250,7 @@ export function ReportPage() {
           </label>
 
           <label className="block text-sm">
-            <span className="text-slate-400">Sighting date and time</span>
+            <span className="text-slate-400">Date and time of sighting</span>
             <input
               type="datetime-local"
               className="mt-1 w-full rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 focus:ring-2"
