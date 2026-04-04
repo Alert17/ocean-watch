@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import rateLimit from "@fastify/rate-limit";
 import { Species, Behavior, CreateSightingBody } from "../types/sighting";
 import { authenticate } from "../plugins/authenticate";
 import { createSighting } from "../services/sighting.service";
@@ -24,6 +25,17 @@ const createSightingSchema = {
 };
 
 export async function sightingsRoutes(app: FastifyInstance) {
+  await app.register(rateLimit, {
+    max: 10,
+    timeWindow: "1 hour",
+    keyGenerator: (request) => request.user?.wallet ?? request.ip,
+    errorResponseBuilder: () => ({
+      statusCode: 429,
+      error: "Too Many Requests",
+      message: "Max 10 sightings per hour",
+    }),
+  });
+
   app.post<{ Body: CreateSightingBody }>("/", { schema: createSightingSchema, onRequest: [authenticate] }, async (request, reply) => {
     const result = await createSighting(request.body, request.user.wallet);
 
