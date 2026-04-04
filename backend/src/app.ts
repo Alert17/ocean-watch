@@ -1,10 +1,14 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import jwt from "@fastify/jwt";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import sensible from "./plugins/sensible";
+import { config } from "./config";
+import { authRoutes } from "./routes/auth";
 import { sightingsRoutes } from "./routes/sightings";
 import { tokenRoutes } from "./routes/token";
+import { userRoutes } from "./routes/user";
 
 const app = Fastify({ logger: true });
 
@@ -15,6 +19,15 @@ app.register(swagger, {
       version: "0.1.0",
       description: "Citizen science platform for marine life sightings on Hedera",
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
 });
 
@@ -23,9 +36,12 @@ app.register(swaggerUi, {
 });
 
 app.register(cors, { origin: true });
+app.register(jwt, { secret: config.jwtSecret });
 app.register(sensible);
+app.register(authRoutes, { prefix: "/auth" });
 app.register(sightingsRoutes, { prefix: "/sightings" });
 app.register(tokenRoutes, { prefix: "/token" });
+app.register(userRoutes, { prefix: "/user" });
 
 app.get("/health", async () => ({ status: "ok" }));
 
