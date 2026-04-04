@@ -18,6 +18,7 @@
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
     "leaflet": "^1.9.4",
+    "qrcode.react": "^4.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",

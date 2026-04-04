@@ -10,24 +10,24 @@ export function MyAccountPage() {
   const auth = useAuth();
 
   return (
-    <Layout title="Mon compte">
+    <Layout title="My account">
       <div className="mt-4 space-y-6">
         <p className="text-sm text-slate-400">
-          Gérez votre session Ocean Watch. La connexion Hedera et la vérification World ID se
-          font sur la page dédiée.
+          Manage your Ocean Watch session. Hedera sign-in and World ID verification happen on the
+          dedicated page.
         </p>
 
         <Link
           to="/world-id"
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 px-5 py-4 font-semibold text-abyss-950 shadow-glow transition hover:from-reef-400 hover:to-lagoon-500"
         >
-          Ouvrir World ID &amp; connexion
+          Open World ID &amp; sign-in
         </Link>
 
         {auth.jwt || auth.wallet ? (
           <div className="rounded-2xl border border-lagoon-500/20 bg-abyss-850/70 p-4 space-y-2">
             <p className="text-xs font-medium uppercase tracking-wider text-lagoon-400/80">
-              État de la session
+              Session status
             </p>
             {auth.wallet ? (
               <p className="font-mono text-xs text-slate-400 break-all">{auth.wallet}</p>
@@ -36,14 +36,14 @@ export function MyAccountPage() {
               <p className="text-sm text-foam">{auth.name}</p>
             ) : null}
             <p className="text-sm text-slate-400">
-              World ID :{" "}
+              World ID:{" "}
               <span className={auth.isWorldIdVerified ? "text-reef-300" : "text-coral-300"}>
-                {auth.isWorldIdVerified ? "vérifié" : "non vérifié"}
+                {auth.isWorldIdVerified ? "verified" : "not verified"}
               </span>
             </p>
             {!auth.isWorldIdVerified && auth.jwt ? (
               <p className="text-xs text-slate-500">
-                Poursuivez sur la page World ID pour finaliser la vérification.
+                Continue on the World ID page to finish verification.
               </p>
             ) : null}
           </div>
@@ -55,7 +55,7 @@ export function MyAccountPage() {
             onClick={auth.logout}
             className="w-full rounded-2xl border border-slate-700 bg-abyss-850 py-3 text-sm font-medium text-slate-400 transition hover:border-coral-500/40 hover:text-coral-300"
           >
-            Se déconnecter
+            Sign out
           </button>
         ) : null}
       </div>

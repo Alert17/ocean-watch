@@ -43,6 +43,19 @@ export interface SightingPayload {
   mediaUrl?: string;
 }
 
+export interface TokenPriceInfo {
+  treasuryBalanceHbar: number;
+  circulatingSupply: number;
+  pricePerToken: number;
+}
+
+export interface DonateResponse {
+  totalHbar: number;
+  treasuryHbar: number;
+  platformHbar: number;
+  transactionId: string;
+}
+
 export interface SightingResponse {
   sighting: {
     id: string;
@@ -99,6 +112,30 @@ export async function registerUser(wallet: string, name: string): Promise<AuthRe
   });
   if (!res.ok) throw await toError(res);
   return res.json() as Promise<AuthResponse>;
+}
+
+// ── Token / treasury ─────────────────────────────────────────────────────
+
+/** GET /token/price — public */
+export async function getTokenPrice(): Promise<TokenPriceInfo> {
+  const res = await fetch(`${BASE}/token/price`);
+  if (!res.ok) throw await toError(res);
+  return res.json() as Promise<TokenPriceInfo>;
+}
+
+/** POST /token/donate — JWT required; donorAccountId must match the authenticated wallet. */
+export async function donateHbar(
+  jwt: string,
+  donorAccountId: string,
+  amountHbar: number,
+): Promise<DonateResponse> {
+  const res = await fetch(`${BASE}/token/donate`, {
+    method: "POST",
+    headers: authHeaders(jwt),
+    body: JSON.stringify({ donorAccountId, amountHbar }),
+  });
+  if (!res.ok) throw await toError(res);
+  return res.json() as Promise<DonateResponse>;
 }
 
 // ── World ID ──────────────────────────────────────────────────────────────

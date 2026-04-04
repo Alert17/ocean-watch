@@ -30,7 +30,7 @@ function walletConnectProjectId(): string {
   const id = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID as string | undefined;
   if (!id?.trim()) {
     throw new Error(
-      "Variable VITE_WALLETCONNECT_PROJECT_ID manquante. Créez un projet sur https://cloud.reown.com et ajoutez-la dans .env",
+      "Missing VITE_WALLETCONNECT_PROJECT_ID. Create a project at https://cloud.reown.com and add it to .env",
     );
   }
   return id.trim();
@@ -82,7 +82,7 @@ export async function getHederaConnector(): Promise<DAppConnector> {
 }
 
 /**
- * Ouvre WalletConnect si besoin et renvoie l’identifiant de compte Hedera (`0.0.x`).
+ * Opens WalletConnect if needed and returns the Hedera account id (`0.0.x`).
  */
 export async function connectHederaWallet(): Promise<string> {
   const c = await getHederaConnector();
@@ -93,7 +93,7 @@ export async function connectHederaWallet(): Promise<string> {
 
   const signer = c.signers[0];
   if (!signer) {
-    throw new Error("Aucun compte Hedera sélectionné.");
+    throw new Error("No Hedera account selected.");
   }
 
   return signer.getAccountId().toString();

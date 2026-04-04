@@ -38,7 +38,7 @@ export function WorldIdPage() {
     const trimmedName = name.trim();
 
     if (!trimmedWallet) {
-      setAuthError("L'identifiant de compte Hedera est requis.");
+      setAuthError("Hedera account ID is required.");
       return;
     }
 
@@ -49,7 +49,7 @@ export function WorldIdPage() {
         res = await loginUser(trimmedWallet);
       } catch {
         if (!trimmedName) {
-          setAuthError("Compte introuvable. Entrez un nom pour créer un compte.");
+          setAuthError("Account not found. Enter a name to create an account.");
           setIsAuthPending(false);
           return;
         }
@@ -57,14 +57,14 @@ export function WorldIdPage() {
       }
       auth.setAuth(res.token, res.user.wallet, res.user.name);
     } catch (err) {
-      setAuthError(err instanceof Error ? err.message : "Erreur d'authentification");
+      setAuthError(err instanceof Error ? err.message : "Authentication error");
     } finally {
       setIsAuthPending(false);
     }
   };
 
   const handleWorldIdVerify = async (result: ISuccessResult) => {
-    if (!auth.jwt) throw new Error("JWT manquant — reconnectez-vous.");
+    if (!auth.jwt) throw new Error("Missing JWT — sign in again.");
     setWorldIdError(null);
 
     const data = await verifyWorldId(
@@ -78,7 +78,7 @@ export function WorldIdPage() {
     );
 
     if (!data.verified) {
-      throw new Error("La vérification World ID a échoué.");
+      throw new Error("World ID verification failed.");
     }
   };
 
@@ -88,7 +88,7 @@ export function WorldIdPage() {
   };
 
   const onWorldIdError = () => {
-    setWorldIdError("La vérification World ID a échoué. Veuillez réessayer.");
+    setWorldIdError("World ID verification failed. Please try again.");
   };
 
   if (auth.isReady) {
@@ -99,7 +99,7 @@ export function WorldIdPage() {
             <WorldIdOrb className="h-8 w-8 shrink-0 text-reef-300" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foam">
-                {auth.name} — World ID vérifié
+                {auth.name} — World ID verified
               </p>
               <p className="mt-0.5 font-mono text-[10px] text-slate-500 break-all">
                 {auth.wallet}
@@ -111,7 +111,7 @@ export function WorldIdPage() {
             to="/my-account"
             className="block w-full rounded-2xl border border-lagoon-500/30 bg-abyss-850 py-3 text-center text-sm font-medium text-lagoon-400 transition hover:border-lagoon-400/50 hover:text-foam"
           >
-            Retour à mon compte
+            Back to my account
           </Link>
 
           <button
@@ -119,7 +119,7 @@ export function WorldIdPage() {
             onClick={auth.logout}
             className="w-full rounded-2xl border border-slate-700 bg-abyss-850 py-3 text-sm font-medium text-slate-400 transition hover:border-coral-500/40 hover:text-coral-300"
           >
-            Se déconnecter
+            Sign out
           </button>
         </div>
       </Layout>
@@ -136,12 +136,11 @@ export function WorldIdPage() {
 
           <div className="space-y-2 text-center">
             <h2 className="font-display text-2xl font-semibold text-foam">
-              Vérifiez votre identité
+              Verify your identity
             </h2>
             <p className="text-balance text-sm text-slate-400">
-              Bienvenue{auth.name ? `, ${auth.name}` : ""} ! Un World ID est requis
-              pour soumettre une observation et recevoir des récompenses{" "}
-              <strong className="text-foam">OCEAN</strong>.
+              Welcome{auth.name ? `, ${auth.name}` : ""}! World ID is required to submit a sighting
+              and earn <strong className="text-foam">OCEAN</strong> rewards.
             </p>
           </div>
 
@@ -166,18 +165,17 @@ export function WorldIdPage() {
                 className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 py-4 font-semibold text-abyss-950 shadow-glow transition hover:from-reef-400 hover:to-lagoon-500"
               >
                 <WorldIdOrb className="h-5 w-5" />
-                Continuer avec World ID
+                Continue with World ID
               </button>
             )}
           </IDKitWidget>
 
           <p className="text-center text-xs text-slate-600">
-            World ID protège votre vie privée via une preuve à divulgation nulle.
-            Aucune donnée personnelle n'est partagée.
+            World ID protects your privacy with a zero-knowledge proof. No personal data is shared.
           </p>
 
           <Link to="/my-account" className="text-sm text-lagoon-400 underline">
-            Retour à mon compte
+            Back to my account
           </Link>
         </div>
       </Layout>
@@ -188,14 +186,13 @@ export function WorldIdPage() {
     <Layout title="World ID">
       <div className="mt-4 space-y-6">
         <p className="text-sm text-slate-400">
-          Entrez votre identifiant de compte{" "}
-          <strong className="text-foam">Hedera</strong> pour accéder à Ocean Watch.
-          Si vous n'avez pas encore de compte, ajoutez un nom pour en créer un.
+          Enter your <strong className="text-foam">Hedera</strong> account ID to access Ocean Watch.
+          If you do not have an account yet, add a name to create one.
         </p>
 
         <form onSubmit={(e) => { void handleWalletSubmit(e); }} className="space-y-4">
           <label className="block text-sm">
-            <span className="text-slate-400">Compte Hedera (ex : 0.0.12345)</span>
+            <span className="text-slate-400">Hedera account (e.g. 0.0.12345)</span>
             <input
               type="text"
               value={wallet}
@@ -208,7 +205,7 @@ export function WorldIdPage() {
           </label>
 
           <label className="block text-sm">
-            <span className="text-slate-400">Nom <span className="text-slate-600">(requis pour un nouveau compte)</span></span>
+            <span className="text-slate-400">Name <span className="text-slate-600">(required for a new account)</span></span>
             <input
               type="text"
               value={name}
@@ -234,12 +231,12 @@ export function WorldIdPage() {
                 : "bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 text-abyss-950 shadow-glow hover:from-reef-400 hover:to-lagoon-500",
             ].join(" ")}
           >
-            {isAuthPending ? "Connexion…" : "Continuer"}
+            {isAuthPending ? "Signing in…" : "Continue"}
           </button>
         </form>
 
         <Link to="/my-account" className="block text-center text-sm text-lagoon-400 underline">
-          Retour à mon compte
+          Back to my account
         </Link>
       </div>
     </Layout>
