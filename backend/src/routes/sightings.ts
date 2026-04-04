@@ -4,11 +4,13 @@ import { Species, Behavior, CreateSightingBody } from "../types/sighting";
 import { authenticate } from "../plugins/authenticate";
 import { createSighting } from "../services/sighting.service";
 import { SIGHTING_RATE_LIMIT_MAX, SIGHTING_RATE_LIMIT_WINDOW } from "../config/constants";
+import { createSightingResponse } from "../schemas/responses";
 
 const createSightingSchema = {
   description: "Submit a new marine life sighting to HCS and reward observer",
   tags: ["sightings"],
   security: [{ bearerAuth: [] }],
+  response: createSightingResponse,
   body: {
     type: "object",
     required: ["latitude", "longitude", "observedAt"],

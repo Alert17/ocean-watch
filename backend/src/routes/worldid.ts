@@ -7,11 +7,13 @@ import {
   markVerified,
   getVerificationStatus,
 } from "../services/worldid.service";
+import { worldIdVerifyResponse, worldIdStatusResponse } from "../schemas/responses";
 
 const verifySchema = {
   description: "Verify World ID proof and link to user account",
   tags: ["worldid"],
   security: [{ bearerAuth: [] }],
+  response: worldIdVerifyResponse,
   body: {
     type: "object",
     required: ["proof", "merkle_root", "nullifier_hash", "verification_level"],
@@ -45,7 +47,7 @@ export async function worldIdRoutes(app: FastifyInstance) {
   });
 
   app.get("/status", {
-    schema: { description: "Check World ID verification status", tags: ["worldid"], security: [{ bearerAuth: [] }] },
+    schema: { description: "Check World ID verification status", tags: ["worldid"], security: [{ bearerAuth: [] }], response: worldIdStatusResponse },
     onRequest: [authenticate],
   }, async (request) => {
     const verified = await getVerificationStatus(request.user.sub);

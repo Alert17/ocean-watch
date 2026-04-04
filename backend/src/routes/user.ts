@@ -1,23 +1,27 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { getUserById, getBalance, getSightingCount } from "../services/user.service";
+import { profileResponse, userBalanceResponse, userStatsResponse } from "../schemas/responses";
 
 const profileSchema = {
   description: "Get current user profile",
   tags: ["user"],
   security: [{ bearerAuth: [] }],
+  response: profileResponse,
 };
 
 const balanceSchema = {
   description: "Get current user OCEAN token balance",
   tags: ["user"],
   security: [{ bearerAuth: [] }],
+  response: userBalanceResponse,
 };
 
 const statsSchema = {
   description: "Get sighting stats for current user (from Mirror Node)",
   tags: ["user"],
   security: [{ bearerAuth: [] }],
+  response: userStatsResponse,
 };
 
 export async function userRoutes(app: FastifyInstance) {

@@ -6,12 +6,14 @@ import {
   processRedeem,
 } from "../hedera";
 import { authenticate } from "../plugins/authenticate";
+import { tokenPriceResponse, tokenBalanceResponse, donateResponse, redeemResponse } from "../schemas/responses";
 
 export async function tokenRoutes(app: FastifyInstance) {
   app.get("/price", {
     schema: {
       description: "Get current OCEAN token price (treasury balance / supply)",
       tags: ["token"],
+      response: tokenPriceResponse,
     },
   }, async () => {
     return getTokenPrice();
@@ -21,6 +23,7 @@ export async function tokenRoutes(app: FastifyInstance) {
     schema: {
       description: "Get OCEAN balance for an account",
       tags: ["token"],
+      response: tokenBalanceResponse,
       params: {
         type: "object",
         properties: {
@@ -38,6 +41,7 @@ export async function tokenRoutes(app: FastifyInstance) {
       description: "Donate HBAR to treasury (80% redeemable, 20% platform)",
       tags: ["token"],
       security: [{ bearerAuth: [] }],
+      response: donateResponse,
       body: {
         type: "object",
         required: ["donorAccountId", "amountHbar"],
@@ -64,6 +68,7 @@ export async function tokenRoutes(app: FastifyInstance) {
       description: "Redeem OCEAN tokens for HBAR share of treasury",
       tags: ["token"],
       security: [{ bearerAuth: [] }],
+      response: redeemResponse,
       body: {
         type: "object",
         required: ["userAccountId", "tokenAmount"],

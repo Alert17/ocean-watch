@@ -1,10 +1,12 @@
 import { FastifyInstance } from "fastify";
 import { ChallengeBody, VerifySignatureBody } from "../types/auth";
 import { findUserByWallet, createUser, createChallenge, verifyChallenge } from "../services/auth.service";
+import { challengeResponse, verifyAuthResponse } from "../schemas/responses";
 
 const challengeSchema = {
   description: "Request a challenge nonce for wallet verification",
   tags: ["auth"],
+  response: challengeResponse,
   body: {
     type: "object",
     required: ["wallet"],
@@ -17,6 +19,7 @@ const challengeSchema = {
 const verifySchema = {
   description: "Verify signed challenge and register/login",
   tags: ["auth"],
+  response: verifyAuthResponse,
   body: {
     type: "object",
     required: ["wallet", "nonce", "signature"],

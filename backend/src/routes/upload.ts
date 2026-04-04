@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { uploadFile } from "../ipfs/pinata";
+import { uploadResponse } from "../schemas/responses";
 
 export async function uploadRoutes(app: FastifyInstance) {
   app.post("/", {
@@ -9,6 +10,7 @@ export async function uploadRoutes(app: FastifyInstance) {
       tags: ["upload"],
       security: [{ bearerAuth: [] }],
       consumes: ["multipart/form-data"],
+      response: uploadResponse,
     },
     onRequest: [authenticate],
   }, async (request, reply) => {
