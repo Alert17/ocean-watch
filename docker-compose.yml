@@ -23,6 +23,8 @@ services:
       HEDERA_OPERATOR_ID: ${HEDERA_OPERATOR_ID}
       HEDERA_OPERATOR_KEY: ${HEDERA_OPERATOR_KEY}
       HEDERA_TOPIC_ID: ${HEDERA_TOPIC_ID}
+      HEDERA_TOKEN_ID: ${HEDERA_TOKEN_ID}
+      HEDERA_PLATFORM_ACCOUNT_ID: ${HEDERA_PLATFORM_ACCOUNT_ID}
     ports:
       - "127.0.0.1:3001:3001"
 
@@ -48,7 +50,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
 
 volumes:
   pgdata:

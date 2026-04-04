@@ -21,6 +21,7 @@ async function main() {
     .setInitialSupply(0)
     .setSupplyType(TokenSupplyType.Infinite)
     .setTreasuryAccountId(operatorId)
+    .setAdminKey(operatorKey.publicKey)
     .setSupplyKey(operatorKey.publicKey)
     .setKycKey(operatorKey.publicKey)
     .execute(client);
