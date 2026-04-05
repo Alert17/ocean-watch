@@ -54,6 +54,27 @@ const FAQ_SECTIONS: { heading: string; items: { q: string; a: string }[] }[] = [
       },
     ],
   },
+  {
+    heading: "Data & trust",
+    items: [
+      {
+        q: "Is the data live or partially mocked?",
+        a: "The indexer pipeline is being finalised. Until it is fully live, the map may display a set of representative mock sightings so you can explore the interface. The Report page always submits real data to the backend. A swap comment in the code marks where mock data will be replaced.",
+      },
+      {
+        q: "What is the purpose of the on-chain transaction references?",
+        a: "Each sighting payload is submitted to the Hedera Consensus Service, which assigns a sequence number and a consensus timestamp. These references let anyone independently verify that a record existed at a specific point in time and has not been altered since — providing auditability without requiring a trusted intermediary.",
+      },
+      {
+        q: "Are GPS coordinates shared publicly?",
+        a: "Yes — coordinates are written to a public ledger. If exact privacy matters to you, consider rounding your coordinates to roughly 1 km precision before submitting. The app does not round automatically.",
+      },
+      {
+        q: "How are sightings verified?",
+        a: "Every reporter must hold a World ID credential (biometric proof-of-personhood) to prevent duplicate or bot submissions. The World ID proof is verified server-side before the sighting is accepted. This does not verify the biological accuracy of the observation — species identification relies on the reporter's best judgement.",
+      },
+    ],
+  },
 
         {/* ── Back to map ───────────────────────────────────── */}
         <div className="border-t border-lagoon-500/10 pt-4">
