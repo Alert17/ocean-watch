@@ -90,6 +90,10 @@ const FAQ_SECTIONS: { heading: string; items: { q: string; a: string }[] }[] = [
         q: "Why is this useful for researchers and conservation?",
         a: "A publicly accessible, on-chain dataset means any researcher can query historical sightings without gatekeepers. Long-term trends — seasonal patterns, species richness, behaviour changes near dive sites — become visible as data accumulates. Conservation agencies can use the data to argue for or against the extension of marine protected areas.",
       },
+      {
+        q: "How will donations be used?",
+        a: "Donations collected through OceanWatch are split across two purposes. The first half funds peer-reviewed marine science: water quality studies, species population surveys, and reef monitoring programmes conducted by independent research teams in the Cozumel region. The second half supports environmental education in local schools — classroom materials, guided snorkelling sessions for students, and workshops that teach younger generations why sharks and healthy reefs matter. Every allocation is recorded on-chain so donors can follow exactly where their contribution goes.",
+      },
     ],
   },
 ];
