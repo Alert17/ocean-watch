@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      OceanWatch — Digital citizen science for Mar Sustentable
+    </title>
+    <meta
+      name="description"
+      content="OceanWatch is the on-chain citizen science tool built with Mar Sustentable to preserve coral reefs, mangroves, and sharks across the Mexican Caribbean."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family:
+          ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: #010a14;
+        color: #e2e8f0;
+      }
+      .hero {
+        background:
+          radial-gradient(
+            ellipse at 20% 10%,
+            rgba(14, 165, 233, 0.35) 0%,
+            transparent 55%
+          ),
+          radial-gradient(
+            ellipse at 80% 30%,
+            rgba(16, 185, 129, 0.2) 0%,
+            transparent 60%
+          ),
+          linear-gradient(180deg, #031b2e 0%, #010a14 100%);
+      }
+      .wave {
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        line-height: 0;
+      }
+      .wave svg {
+        width: 100%;
+        height: 120px;
+        display: block;
+      }
+      .glow {
+        box-shadow:
+          0 0 0 1px rgba(125, 211, 252, 0.25),
+          0 10px 40px -10px rgba(14, 165, 233, 0.6);
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(125, 211, 252, 0.12);
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      .float {
+        animation: float 6s ease-in-out infinite;
+      }
+      /* The source logo ships with a near-black navy background. We don't
+         have an alpha cut-out, so we fake one:
+         1. `filter: contrast(...) brightness(...)` crushes the near-black
+            background to pure black (and punches up the shark/text).
+         2. `mix-blend-mode: screen` makes pure black render as transparent
+            against any underlying color.
+         3. A soft radial mask feathers the rectangle edges so any residual
+            seam dissolves into the hero gradient.
+         Result: looks like a real transparent PNG, without touching the
+         asset itself. */
+      .logo-blend {
+        /* The source JPG has a dark-navy background that visually matches
+           the hero gradient at the image's centre. We don't need to remove
+           it — we only need to dissolve the rectangle edges so no seam is
+           visible. A soft radial mask does exactly that: the middle of the
+           image stays fully opaque (where the shark + text live, over a
+           navy that already blends with the hero), and the outer ring
+           feathers to transparent long before it reaches the rectangle
+           border. `screen` then adds a gentle lift to the glow pixels so
+           the shark pops. */
+        mix-blend-mode: screen;
+        filter: brightness(1.1) saturate(1.1);
+        -webkit-mask-image: radial-gradient(
+          ellipse 55% 50% at center,
+          #000 0%,
+          #000 35%,
+          transparent 90%
+        );
+        mask-image: radial-gradient(
+          ellipse 55% 50% at center,
+          #000 0%,
+          #000 35%,
+          transparent 90%
+        );
+      }
+    </style>
+  </head>
+
+  <body class="antialiased">
+    <!-- Nav -->
+    <header class="absolute top-0 left-0 right-0 z-20">
+      <div
+        class="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-2 text-white font-semibold text-lg">
+          <span class="text-2xl">🌊</span>
+          <span>OceanWatch</span>
+        </div>
+        <nav class="hidden md:flex items-center gap-8 text-sm text-slate-300">
+          <a href="#mission" class="hover:text-white">Mission</a>
+          <a href="#how" class="hover:text-white">How it works</a>
+          <a href="#programs" class="hover:text-white">Programs</a>
+          <a href="#team" class="hover:text-white">Team</a>
+        </nav>
+        <a
+          href="https://app.oceanwatch.xyz"
+          class="text-sm font-medium text-white bg-sky-500 hover:bg-sky-400 px-4 py-2 rounded-full transition"
+          >Launch App →</a
+        >
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero relative overflow-hidden">
+      <div class="max-w-6xl mx-auto px-6 pt-40 pb-48 relative z-10">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <div
+              class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-sky-300 bg-sky-500/10 border border-sky-400/20 rounded-full px-3 py-1 mb-6"
+            >
+              <span
+                class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"
+              ></span>
+              In partnership with Mar Sustentable · Mexican Caribbean
+            </div>
+            <h1
+              class="text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight"
+            >
+              Healthy coasts.<br />
+              <span
+                class="bg-gradient-to-r from-sky-300 via-cyan-200 to-emerald-200 bg-clip-text text-transparent"
+                >Sustainable livelihoods.</span
+              >
+            </h1>
+            <p
+              class="mt-8 text-lg md:text-xl text-slate-300 max-w-xl leading-relaxed"
+            >
+              OceanWatch is the digital citizen-science layer for Mar
+              Sustentable's work preserving coral reefs, mangroves, and
+              sharks across Cozumel, Holbox, and Isla Mujeres. Every sighting
+              is verified on-chain and flows directly into conservation
+              decisions.
+            </p>
+            <div class="mt-10 flex flex-wrap gap-4">
+              <a
+                href="https://app.oceanwatch.xyz"
+                class="glow inline-flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-white font-semibold text-base px-7 py-4 rounded-full transition"
+              >
+                Launch App
+                <span aria-hidden="true">→</span>
+              </a>
+              <a
+                href="#mission"
+                class="inline-flex items-center gap-2 text-slate-200 hover:text-white font-medium px-7 py-4 rounded-full border border-white/15 hover:border-white/30 transition"
+              >
+                Our mission
+              </a>
+            </div>
+          </div>
+
+          <div class="relative flex justify-center lg:justify-end">
+            <img
+              src="assets/logo.jpg"
+              alt="OceanWatch logo"
+              class="logo-blend float w-full max-w-lg h-auto select-none pointer-events-none"
+              draggable="false"
+            />
+          </div>
+        </div>
+
+        <div class="mt-24 grid grid-cols-3 gap-4 md:gap-12 max-w-2xl">
+          <div>
+            <div class="text-3xl md:text-4xl font-bold text-white">2015</div>
+            <div class="text-xs md:text-sm text-slate-400 mt-1">
+              Field work in Holbox since
+            </div>
+          </div>
+          <div>
+            <div class="text-3xl md:text-4xl font-bold text-white">10+</div>
+            <div class="text-xs md:text-sm text-slate-400 mt-1">
+              Countries reached with shark education
+            </div>
+          </div>
+          <div>
+            <div class="text-3xl md:text-4xl font-bold text-white">150+</div>
+            <div class="text-xs md:text-sm text-slate-400 mt-1">
+              Educational videos produced since 2018
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wave divider -->
+      <div class="wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+          <path
+            d="M0,64 C240,112 480,16 720,48 C960,80 1200,128 1440,80 L1440,120 L0,120 Z"
+            fill="#0f172a"
+          />
+        </svg>
+      </div>
+    </section>
+
+    <!-- Mission -->
+    <section id="mission" class="bg-slate-900 py-28">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="max-w-3xl">
+          <div
+            class="text-xs uppercase tracking-widest text-sky-400 font-semibold"
+          >
+            The mission
+          </div>
+          <h2
+            class="mt-4 text-4xl md:text-5xl font-bold text-white leading-tight"
+          >
+            Conserving coastal habitats and biodiversity
+            <span class="text-sky-400"
+              >for healthy, sustainable human livelihoods.</span
+            >
+          </h2>
+          <p class="mt-8 text-lg text-slate-400 leading-relaxed">
+            Mar Sustentable generates interdisciplinary data on coastal
+            exploitation and socioecological systems — coral reefs, mangroves,
+            and other critical habitats — to understand how ecosystem services
+            are delivered to at-risk coastal communities.
+          </p>
+          <p class="mt-4 text-lg text-slate-400 leading-relaxed">
+            OceanWatch is the tool that puts that science in the hands of the
+            divers, fishers, and guides who live on the water every day.
+            Observations are pinned to IPFS, anchored on Hedera, and made
+            available to policy managers making the decisions that protect
+            natural capital and coastal heritage.
+          </p>
+        </div>
+
+        <div class="mt-16 grid md:grid-cols-3 gap-6">
+          <div class="card rounded-2xl p-8">
+            <div class="text-4xl mb-4">🪸</div>
+            <div class="text-xl font-semibold text-white">Coral reefs</div>
+            <p class="mt-3 text-slate-400 text-sm leading-relaxed">
+              The backbone of Caribbean marine life. Baseline sightings and
+              condition reports feed long-term reef health monitoring.
+            </p>
+          </div>
+          <div class="card rounded-2xl p-8">
+            <div class="text-4xl mb-4">🌿</div>
+            <div class="text-xl font-semibold text-white">
+              Mangroves &amp; seagrass
+            </div>
+            <p class="mt-3 text-slate-400 text-sm leading-relaxed">
+              Nurseries for juvenile sharks and countless reef species.
+              Protected where data shows they matter most.
+            </p>
+          </div>
+          <div class="card rounded-2xl p-8">
+            <div class="text-4xl mb-4">🦈</div>
+            <div class="text-xl font-semibold text-white">
+              Sharks &amp; top predators
+            </div>
+            <p class="mt-3 text-slate-400 text-sm leading-relaxed">
+              Reef sharks, nurse sharks, and juveniles — the indicator species
+              for reef ecosystem health across the Mexican Caribbean.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="bg-slate-950 py-28 relative overflow-hidden">
+      <div class="max-w-6xl mx-auto px-6 relative z-10">
+        <div class="max-w-2xl">
+          <div
+            class="text-xs uppercase tracking-widest text-sky-400 font-semibold"
+          >
+            How it works
+          </div>
+          <h2
+            class="mt-4 text-4xl md:text-5xl font-bold text-white leading-tight"
+          >
+            Local knowledge,<br />verified globally.
+          </h2>
+          <p class="mt-6 text-lg text-slate-400 leading-relaxed">
+            Mar Sustentable's shark research on Cozumel builds on the Local
+            Ecological Knowledge of fishers who have watched these waters for
+            generations. OceanWatch digitizes that knowledge — with
+            provenance, with proof, and without losing a single observation.
+          </p>
+        </div>
+
+        <div class="mt-20 grid md:grid-cols-3 gap-8">
+          <div class="relative">
+            <div
+              class="text-6xl font-bold text-sky-500/20 absolute -top-6 -left-2"
+            >
+              01
+            </div>
+            <div class="relative pt-8">
+              <h3 class="text-2xl font-semibold text-white">Report</h3>
+              <p class="mt-3 text-slate-400 leading-relaxed">
+                A fisher in Holbox or a diver off Cozumel files a sighting:
+                species, location, photo. Evidence is pinned to IPFS —
+                immutable, decentralized, forever referenceable.
+              </p>
+            </div>
+          </div>
+          <div class="relative">
+            <div
+              class="text-6xl font-bold text-sky-500/20 absolute -top-6 -left-2"
+            >
+              02
+            </div>
+            <div class="relative pt-8">
+              <h3 class="text-2xl font-semibold text-white">Verify</h3>
+              <p class="mt-3 text-slate-400 leading-relaxed">
+                Each observation is anchored to Hedera Consensus Service.
+                Every reporter is a unique human, proven with World ID — no
+                bots, no duplicates, no fabricated data.
+              </p>
+            </div>
+          </div>
+          <div class="relative">
+            <div
+              class="text-6xl font-bold text-sky-500/20 absolute -top-6 -left-2"
+            >
+              03
+            </div>
+            <div class="relative pt-8">
+              <h3 class="text-2xl font-semibold text-white">Fund</h3>
+              <p class="mt-3 text-slate-400 leading-relaxed">
+                Donors support Mar Sustentable's field biologists directly
+                on-chain. Every contribution is traceable from wallet to
+                programme, with zero overhead in between.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Programs -->
+    <section id="programs" class="bg-slate-900 py-28">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="max-w-2xl">
+          <div
+            class="text-xs uppercase tracking-widest text-sky-400 font-semibold"
+          >
+            Programmes
+          </div>
+          <h2
+            class="mt-4 text-4xl md:text-5xl font-bold text-white leading-tight"
+          >
+            Real projects. Real coastlines.
+          </h2>
+          <p class="mt-6 text-lg text-slate-400 leading-relaxed">
+            OceanWatch is built to feed the science and education programmes
+            Mar Sustentable is already running.
+          </p>
+        </div>
+
+        <div class="mt-16 grid md:grid-cols-2 gap-6">
+          <div class="card rounded-2xl p-10">
+            <div
+              class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-sky-400 font-semibold"
+            >
+              Research
+            </div>
+            <h3 class="mt-4 text-2xl font-semibold text-white">
+              Humans and Sharks on Cozumel
+            </h3>
+            <p class="mt-4 text-slate-400 leading-relaxed">
+              Reconstructing historical shark biodiversity through fishers'
+              Local Ecological Knowledge, historical ecology, and geospatial
+              field observations. Focused on juvenile reef sharks and nurse
+              sharks across Holbox (since 2015), Isla Mujeres (since 2021),
+              and Cozumel.
+            </p>
+          </div>
+          <div class="card rounded-2xl p-10">
+            <div
+              class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-sky-400 font-semibold"
+            >
+              Education
+            </div>
+            <h3 class="mt-4 text-2xl font-semibold text-white">
+              Club de los Tiburones México
+            </h3>
+            <p class="mt-4 text-slate-400 leading-relaxed">
+              Virtual shark conservation workshops for young people across 10+
+              countries in Latin America and the Caribbean. Launched in 2021
+              and supported by the Save Our Seas Foundation, with 150+ short
+              educational films produced since 2018.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team / Org -->
+    <section id="team" class="bg-slate-950 py-28">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <div
+              class="text-xs uppercase tracking-widest text-sky-400 font-semibold"
+            >
+              The organisation
+            </div>
+            <h2
+              class="mt-4 text-4xl md:text-5xl font-bold text-white leading-tight"
+            >
+              Built with
+              <a
+                href="https://www.marsustentable.org/"
+                target="_blank"
+                rel="noopener"
+                class="text-sky-400 hover:text-sky-300 underline decoration-sky-400/30 underline-offset-4"
+                >Mar Sustentable</a
+              >.
+            </h2>
+            <p class="mt-6 text-lg text-slate-400 leading-relaxed">
+              Mar Sustentable produces sound scientific and environmental
+              education material used by policy managers to preserve the
+              natural capital and socio-cultural heritage of coastal
+              communities. Their field biologists, educators, and local
+              partners are the people OceanWatch is built for.
+            </p>
+            <p class="mt-4 text-lg text-slate-400 leading-relaxed">
+              This isn't a hackathon thought experiment. It is a working tool
+              designed alongside the scientists who will use it.
+            </p>
+            <a
+              href="https://www.marsustentable.org/"
+              target="_blank"
+              rel="noopener"
+              class="mt-8 inline-flex items-center gap-2 text-sky-400 hover:text-sky-300 font-medium"
+            >
+              Visit marsustentable.org
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+          <div class="card rounded-3xl p-10 float">
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-full bg-gradient-to-br from-sky-400 to-emerald-400 flex items-center justify-center text-2xl"
+              >
+                🔬
+              </div>
+              <div>
+                <div class="text-white font-semibold">
+                  Field research team
+                </div>
+                <div class="text-sm text-slate-400">
+                  Mar Sustentable · Mexican Caribbean
+                </div>
+              </div>
+            </div>
+            <blockquote
+              class="mt-8 text-slate-300 leading-relaxed border-l-2 border-sky-400/40 pl-6 italic"
+            >
+              "Fishers have watched these reefs for generations. OceanWatch
+              turns that knowledge into a dataset we can act on — and that
+              policy makers can trust."
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Big CTA -->
+    <section class="bg-slate-900 py-28 relative overflow-hidden">
+      <div
+        class="absolute inset-0 opacity-40"
+        style="
+          background:
+            radial-gradient(
+              circle at 50% 50%,
+              rgba(14, 165, 233, 0.3) 0%,
+              transparent 60%
+            );
+        "
+      ></div>
+      <div class="relative max-w-4xl mx-auto px-6 text-center">
+        <h2
+          class="text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight"
+        >
+          Help us continue the
+          <span
+            class="bg-gradient-to-r from-sky-300 to-emerald-300 bg-clip-text text-transparent"
+            >scientific and educational mission.</span
+          >
+        </h2>
+        <p class="mt-6 text-lg text-slate-400 max-w-2xl mx-auto">
+          Open the app, verify you're human, and file your first sighting — or
+          fund Mar Sustentable directly on-chain.
+        </p>
+        <div class="mt-10 flex flex-wrap justify-center gap-4">
+          <a
+            href="https://app.oceanwatch.xyz"
+            class="glow inline-flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-white font-semibold text-lg px-10 py-5 rounded-full transition"
+          >
+            Launch OceanWatch
+            <span aria-hidden="true">→</span>
+          </a>
+          <a
+            href="https://www.marsustentable.org/"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-2 text-slate-200 hover:text-white font-semibold text-lg px-10 py-5 rounded-full border border-white/15 hover:border-white/30 transition"
+          >
+            Donate at marsustentable.org
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-white/5 py-14">
+      <div class="max-w-6xl mx-auto px-6">
+        <div
+          class="flex flex-col md:flex-row justify-between items-center gap-6"
+        >
+          <div class="flex items-center gap-2 text-white font-semibold">
+            <span class="text-xl">🌊</span>
+            <span>OceanWatch</span>
+          </div>
+          <div class="flex items-center gap-6 text-sm text-slate-400">
+            <span>Built on</span>
+            <span class="text-slate-200 font-medium">Hedera</span>
+            <span class="text-slate-600">·</span>
+            <span class="text-slate-200 font-medium">World ID</span>
+            <span class="text-slate-600">·</span>
+            <span class="text-slate-200 font-medium">IPFS</span>
+          </div>
+          <div class="text-sm text-slate-500">
+            © 2026 · In partnership with
+            <a
+              href="https://www.marsustentable.org/"
+              target="_blank"
+              rel="noopener"
+              class="hover:text-slate-300"
+              >Mar Sustentable</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
