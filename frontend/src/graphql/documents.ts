@@ -1,7 +1,10 @@
 /**
  * GraphQL operations aligned with the indexer schema
  * (https://indexer.oceanwatch.xyz/graphql — read-only Query; no mutations).
- * Sighting writes use REST (`submitSightingToApi` in `lib/api.ts`).
+ *
+ * Creating sightings and attaching media is done via REST:
+ *   1) `uploadMediaFile` → POST /upload (multipart, JWT) → IPFS URL
+ *   2) `submitSightingToApi` → POST /sightings with `mediaUrl`
  */
 
 export const SIGHTING_FIELDS = /* GraphQL */ `

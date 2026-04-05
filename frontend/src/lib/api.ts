@@ -196,6 +196,31 @@ export async function mockWorldIdVerify(jwt: string): Promise<VerifyWorldIdRespo
   return res.json() as Promise<VerifyWorldIdResponse>;
 }
 
+// ── Upload (IPFS via Pinata) ──────────────────────────────────────────────
+// GraphQL indexer has no upload mutation; media is attached on REST sighting create.
+
+export interface UploadMediaResponse {
+  cid: string;
+  url: string;
+  filename: string;
+  mimetype: string;
+}
+
+/** POST /upload — multipart `file`, requires JWT. Returns gateway URL for `mediaUrl` on sighting. */
+export async function uploadMediaFile(jwt: string, file: File): Promise<UploadMediaResponse> {
+  const body = new FormData();
+  body.append("file", file, file.name);
+  const res = await fetch(`${BASE}/upload`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+    body,
+  });
+  if (!res.ok) throw await toError(res);
+  return res.json() as Promise<UploadMediaResponse>;
+}
+
 // ── Sightings ─────────────────────────────────────────────────────────────
 
 /** POST /sightings — requires JWT. Backend writes to HCS and mints 10 OCEAN. */

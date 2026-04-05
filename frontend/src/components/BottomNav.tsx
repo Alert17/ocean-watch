@@ -5,6 +5,7 @@ const navEntries = [
   { to: "/", label: "Home", icon: HomeIcon, end: true as const },
   { to: "/report", label: "Report", icon: PinIcon, end: false as const },
   { to: "/history", label: "History", icon: LogIcon, end: false as const },
+  { to: "/map", label: "Map", icon: MapIcon, end: false as const },
   { to: "/donate", label: "Donate", icon: HeartIcon, end: false as const },
 ] as const;
 
@@ -208,6 +209,23 @@ function LogIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M8 6h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8" />
       <path d="M4 12h9M7 9l-3 3 3 3" />
+    </svg>
+  );
+}
+
+function MapIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 20 3.553 17.276A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 .553-.894L9 2l6 3 5.447-2.724A1 1 0 0 1 21 3.618v10.764a1 1 0 0 1-.553.894L15 20l-6-3-6 3z" />
+      <path d="M9 2v18M15 5v15" />
     </svg>
   );
 }
