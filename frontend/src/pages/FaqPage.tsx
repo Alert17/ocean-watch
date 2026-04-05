@@ -94,7 +94,97 @@ const FAQ_SECTIONS: { heading: string; items: { q: string; a: string }[] }[] = [
   },
 ];
 
+// ── Accordion item ─────────────────────────────────────────────────────────
 
+function AccordionItem({
+  q,
+  a,
+  open,
+  onToggle,
+}: {
+  q: string;
+  a: string;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-lagoon-500/20 bg-abyss-850/60">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-foam"
+        onClick={onToggle}
+        aria-expanded={open}
+      >
+        <span className="pr-3">{q}</span>
+        <span
+          className={[
+            "ml-3 shrink-0 text-lagoon-400 transition-transform duration-200",
+            open ? "rotate-180" : "",
+          ].join(" ")}
+          aria-hidden
+        >
+          ▾
+        </span>
+      </button>
+      {open && (
+        <p className="border-t border-lagoon-500/10 px-4 pb-4 pt-3 text-sm text-slate-400 leading-relaxed">
+          {a}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────
+
+export function FaqPage() {
+  const navigate = useNavigate();
+  // Each section has its own open-item index (null = all closed).
+  const [openItems, setOpenItems] = useState<(number | null)[]>(
+    FAQ_SECTIONS.map(() => null),
+  );
+
+  const toggle = (sectionIdx: number, itemIdx: number) => {
+    setOpenItems((prev) =>
+      prev.map((v, i) =>
+        i === sectionIdx ? (v === itemIdx ? null : itemIdx) : v,
+      ),
+    );
+  };
+
+  return (
+    <Layout title="FAQ">
+      <div className="mt-2 space-y-6">
+
+        {/* ── Intro ─────────────────────────────────────────── */}
+        <p className="text-sm text-slate-400 text-balance">
+          Everything you need to know about{" "}
+          <span className="font-medium text-foam">OceanWatch</span> — the
+          project, the map, how to contribute, and how on-chain records work.
+        </p>
+
+        {/* ── Sections ──────────────────────────────────────── */}
+        {FAQ_SECTIONS.map((section, si) => (
+          <section key={si} aria-labelledby={`faq-section-${si}`}>
+            <h2
+              id={`faq-section-${si}`}
+              className="mb-3 font-display text-lg text-reef-300"
+            >
+              {section.heading}
+            </h2>
+            <div className="space-y-2">
+              {section.items.map((item, ii) => (
+                <AccordionItem
+                  key={ii}
+                  q={item.q}
+                  a={item.a}
+                  open={openItems[si] === ii}
+                  onToggle={() => toggle(si, ii)}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
 
         {/* ── Back to map ───────────────────────────────────── */}
         <div className="border-t border-lagoon-500/10 pt-4">
