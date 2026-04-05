@@ -130,7 +130,7 @@ export function MyAccountPage() {
             <p className="text-balance text-sm text-slate-400">
               Welcome{auth.name ? `, ${auth.name}` : ""}! A World ID is required
               to submit sightings and earn{" "}
-              <strong className="text-foam">OCEAN</strong> rewards.
+              <strong className="text-foam">SHARKY</strong> rewards.
             </p>
           </div>
 
