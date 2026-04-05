@@ -8,15 +8,11 @@ import {
   type ReactNode,
 } from "react";
 import {
-  DAppConnector,
-  HederaChainId,
-  HederaJsonRpcMethod,
-  HederaSessionEvent,
   base64StringToSignatureMap,
   extractFirstSignature,
 } from "@hashgraph/hedera-wallet-connect";
-import { LedgerId } from "@hashgraph/sdk";
 import { requestChallenge, verifySignature, type ApiUser } from "../lib/api";
+import { getHederaConnector } from "../lib/hederaWallet";
 
 // ── Storage keys ─────────────────────────────────────────────────────────
 const KEYS = {
@@ -26,12 +22,7 @@ const KEYS = {
   worldIdVerified: "ow_world_id_verified",
 } as const;
 
-// ── Hedera network config ────────────────────────────────────────────────
 const HEDERA_NETWORK = (import.meta.env.VITE_HEDERA_NETWORK as string) || "testnet";
-const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID as string;
-
-const ledgerId = HEDERA_NETWORK === "mainnet" ? LedgerId.MAINNET : LedgerId.TESTNET;
-const chainId = HEDERA_NETWORK === "mainnet" ? HederaChainId.Mainnet : HederaChainId.Testnet;
 
 // ── Context shape ────────────────────────────────────────────────────────
 export interface WalletAuthState {
@@ -58,42 +49,9 @@ export interface WalletAuthState {
 
 const WalletAuthContext = createContext<WalletAuthState | null>(null);
 
-// Module-level singleton to survive React StrictMode double-mount.
-// DAppConnector / WalletConnect Core MUST be initialized only once per page load.
-let sharedConnector: DAppConnector | null = null;
-let sharedConnectorInitPromise: Promise<DAppConnector> | null = null;
-
-async function getOrInitConnector(): Promise<DAppConnector> {
-  if (sharedConnector) return sharedConnector;
-  if (sharedConnectorInitPromise) return sharedConnectorInitPromise;
-
-  const metadata = {
-    name: "OceanWatch",
-    description: "Marine wildlife sighting tracker on Hedera",
-    url: window.location.origin,
-    icons: [`${window.location.origin}/shark.png`],
-  };
-
-  const connector = new DAppConnector(
-    metadata,
-    ledgerId,
-    PROJECT_ID,
-    Object.values(HederaJsonRpcMethod),
-    [HederaSessionEvent.ChainChanged, HederaSessionEvent.AccountsChanged],
-    [chainId],
-  );
-
-  sharedConnectorInitPromise = connector.init({ logger: "error" }).then(() => {
-    sharedConnector = connector;
-    return connector;
-  });
-
-  return sharedConnectorInitPromise;
-}
-
 // ── Provider ─────────────────────────────────────────────────────────────
 export function WalletAuthProvider({ children }: { children: ReactNode }) {
-  const connectorRef = useRef<DAppConnector | null>(null);
+  const connectorRef = useRef<Awaited<ReturnType<typeof getHederaConnector>> | null>(null);
 
   const [isInitializing, setIsInitializing] = useState(true);
   const [connectedAccountId, setConnectedAccountId] = useState<string | null>(null);
@@ -106,11 +64,13 @@ export function WalletAuthProvider({ children }: { children: ReactNode }) {
     () => localStorage.getItem(KEYS.worldIdVerified) === "true",
   );
 
-  // ── Initialize DAppConnector ───────────────────────────────────────────
+  // ── Initialize DAppConnector via the shared hederaWallet singleton ─────
+  // getHederaConnector() validates PROJECT_ID, checks walletConnectClient
+  // after init, and resets on failure — safe to call from StrictMode.
   useEffect(() => {
     let cancelled = false;
 
-    getOrInitConnector()
+    getHederaConnector()
       .then((connector) => {
         if (cancelled) return;
         connectorRef.current = connector;
@@ -161,7 +121,11 @@ export function WalletAuthProvider({ children }: { children: ReactNode }) {
       message: challenge.message,
     });
 
-    // 4. Extract raw signature bytes from the signatureMap
+    // 4. Extract raw signature bytes from the signatureMap.
+    // The connector's `signMessage` unwraps the JSON-RPC envelope and returns
+    // the `{ signatureMap }` shape directly, but the library's TS types still
+    // describe the wrapped `{ result: { signatureMap } }` form. Cast to reach
+    // the runtime field without blocking tsc.
     const signatureMapBase64 = (signResult as unknown as { signatureMap: string }).signatureMap;
     const signatureMap = base64StringToSignatureMap(signatureMapBase64);
     const signatureBytes = extractFirstSignature(signatureMap);

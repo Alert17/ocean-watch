@@ -43,6 +43,19 @@ export interface SightingPayload {
   mediaUrl?: string;
 }
 
+export interface TokenPriceInfo {
+  treasuryBalanceHbar: number;
+  circulatingSupply: number;
+  pricePerToken: number;
+}
+
+export interface DonateResponse {
+  totalHbar: number;
+  treasuryHbar: number;
+  platformHbar: number;
+  transactionId: string;
+}
+
 export interface SightingResponse {
   sighting: {
     id: string;
@@ -113,6 +126,30 @@ export async function verifySignature(payload: VerifyPayload): Promise<AuthRespo
   return res.json() as Promise<AuthResponse>;
 }
 
+// ── Token / treasury ─────────────────────────────────────────────────────
+
+/** GET /token/price — public */
+export async function getTokenPrice(): Promise<TokenPriceInfo> {
+  const res = await fetch(`${BASE}/token/price`);
+  if (!res.ok) throw await toError(res);
+  return res.json() as Promise<TokenPriceInfo>;
+}
+
+/** POST /token/donate — JWT required; donorAccountId must match the authenticated wallet. */
+export async function donateHbar(
+  jwt: string,
+  donorAccountId: string,
+  amountHbar: number,
+): Promise<DonateResponse> {
+  const res = await fetch(`${BASE}/token/donate`, {
+    method: "POST",
+    headers: authHeaders(jwt),
+    body: JSON.stringify({ donorAccountId, amountHbar }),
+  });
+  if (!res.ok) throw await toError(res);
+  return res.json() as Promise<DonateResponse>;
+}
+
 // ── World ID ──────────────────────────────────────────────────────────────
 
 /**
@@ -140,6 +177,21 @@ export async function getWorldIdStatus(jwt: string): Promise<boolean> {
   if (!res.ok) return false;
   const data = await res.json() as { verified: boolean };
   return data.verified;
+}
+
+/**
+ * POST /worldid/dev-mock — dev-only backend endpoint that marks the current
+ * user as World ID verified without running an IDKit proof. Returns 404 in
+ * production builds of the backend.
+ */
+export async function mockWorldIdVerify(jwt: string): Promise<VerifyWorldIdResponse> {
+  const res = await fetch(`${BASE}/worldid/dev-mock`, {
+    method: "POST",
+    headers: authHeaders(jwt),
+    body: "{}",
+  });
+  if (!res.ok) throw await toError(res);
+  return res.json() as Promise<VerifyWorldIdResponse>;
 }
 
 // ── Sightings ─────────────────────────────────────────────────────────────

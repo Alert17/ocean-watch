@@ -24,11 +24,11 @@ const formSchema = z
     species: z.enum(speciesValues),
     count: z.coerce.number().int().min(1).max(99),
     behavior: z.enum(behaviorValues),
-    observedAt: z.string().min(1, "Date et heure requises"),
+    observedAt: z.string().min(1, "Date and time are required"),
     comment: z.string().optional(),
   })
   .refine((d) => d.latitude !== 0 || d.longitude !== 0, {
-    message: "Tapez sur la carte pour placer votre observation.",
+    message: "Tap the map to place your sighting.",
     path: ["latitude"],
   });
 
@@ -127,7 +127,7 @@ export function ReportPage() {
       );
       navigate("/congrats");
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Erreur lors de la soumission.");
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong while submitting.");
     } finally {
       setIsSubmitting(false);
     }
@@ -155,22 +155,21 @@ export function ReportPage() {
   };
 
   return (
-    <Layout title="Signaler">
+    <Layout title="Report">
       <div className="mt-2 space-y-5">
 
-        {/* ── Instruction contextuelle ─────────────────────── */}
+        {/* ── Context instructions ─────────────────────────── */}
         <p className="text-sm text-slate-400">
-          Placez un marqueur sur la zone où vous avez observé un requin à{" "}
-          <strong className="text-foam">Cozumel</strong>, puis complétez
-          le formulaire.
+          Drop a pin where you saw a shark off{" "}
+          <strong className="text-foam">Cozumel</strong>, then complete the form.
         </p>
 
-        {/* ── Carte Isla Cozumel ───────────────────────────── */}
+        {/* ── Isla Cozumel map ──────────────────────────────── */}
         <div className="overflow-hidden rounded-2xl border border-lagoon-500/25 bg-abyss-850/50">
-          {/* En-tête de la carte */}
+          {/* Map header */}
           <div className="flex items-center justify-between border-b border-lagoon-500/15 px-3 py-2.5">
             <div className="flex items-center gap-2">
-              {/* Icône localisation */}
+              {/* Location icon */}
               <svg
                 className="h-4 w-4 shrink-0 text-reef-400"
                 viewBox="0 0 24 24"
@@ -188,17 +187,17 @@ export function ReportPage() {
                 Isla Cozumel
               </span>
             </div>
-            {/* Zone sélectionnée */}
+            {/* Selected zone */}
             {selectedZone ? (
               <span className="flex items-center gap-1 rounded-lg bg-reef-500/15 px-2 py-0.5 text-xs font-medium text-reef-300">
                 <span className="h-1.5 w-1.5 rounded-full bg-reef-400" aria-hidden />
                 {selectedZone.name}
               </span>
             ) : (
-              <span className="text-xs text-slate-600">Aucune zone sélectionnée</span>
+              <span className="text-xs text-slate-600">No zone selected</span>
             )}
           </div>
-          {/* Carte Leaflet — zones libres, pas de polygones contraignants */}
+          {/* Leaflet map */}
           <MapPicker
             zones={[]}
             value={pickFromForm(lat, lng, zoneId)}
@@ -206,7 +205,7 @@ export function ReportPage() {
           />
         </div>
 
-        {/* ── Formulaire ──────────────────────────────────── */}
+        {/* Form */}
         <form onSubmit={onSubmit} className="space-y-4">
           <input type="hidden" {...register("latitude", { valueAsNumber: true })} />
           <input type="hidden" {...register("longitude", { valueAsNumber: true })} />
@@ -224,7 +223,7 @@ export function ReportPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm">
-              <span className="text-slate-400">Espèce (estimation)</span>
+              <span className="text-slate-400">Species (estimate)</span>
               <select
                 className="mt-1 w-full rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 focus:ring-2"
                 {...register("species")}
@@ -238,7 +237,7 @@ export function ReportPage() {
             </label>
 
             <label className="block text-sm">
-              <span className="text-slate-400">Nombre d'individus</span>
+              <span className="text-slate-400">Number of individuals</span>
               <input
                 type="number"
                 min={1}
@@ -250,7 +249,7 @@ export function ReportPage() {
           </div>
 
           <label className="block text-sm">
-            <span className="text-slate-400">Comportement observé</span>
+            <span className="text-slate-400">Observed behavior</span>
             <select
               className="mt-1 w-full rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 focus:ring-2"
               {...register("behavior")}
@@ -264,7 +263,7 @@ export function ReportPage() {
           </label>
 
           <label className="block text-sm">
-            <span className="text-slate-400">Date et heure de l'observation</span>
+            <span className="text-slate-400">Date and time of sighting</span>
             <input
               type="datetime-local"
               className="mt-1 w-full rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 focus:ring-2"
@@ -278,18 +277,18 @@ export function ReportPage() {
           </label>
 
           <label className="block text-sm">
-            <span className="text-slate-400">Notes de terrain (optionnel)</span>
+            <span className="text-slate-400">Field notes (optional)</span>
             <textarea
               rows={3}
-              placeholder="Profondeur, visibilité, autres espèces à proximité…"
+              placeholder="Depth, visibility, other species nearby…"
               className="mt-1 w-full resize-none rounded-xl border border-lagoon-500/25 bg-abyss-900/80 px-3 py-2.5 text-foam outline-none ring-reef-400/40 placeholder:text-slate-600 focus:ring-2"
               {...register("comment")}
             />
           </label>
 
-          {/* ── Section médias ──────────────────────────────── */}
+          {/* Media section */}
           <div className="block text-sm">
-            <span className="text-slate-400">Photos / Vidéos (optionnel)</span>
+            <span className="text-slate-400">Photos / videos (optional)</span>
             {/*
              * TODO (backend): mediaUrl accepts a single IPFS URL string.
              * Multi-file upload to IPFS must be implemented separately.
@@ -297,11 +296,11 @@ export function ReportPage() {
              * are NOT sent to the backend.
              */}
 
-            {/* Trigger d'ajout de fichiers */}
+            {/* File add trigger */}
             <label className="mt-1 flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-lagoon-500/30 bg-abyss-900/60 px-4 py-3 transition hover:border-lagoon-500/50 hover:bg-abyss-900/80">
               <CameraIcon className="h-5 w-5 shrink-0 text-lagoon-400" />
               <span className="text-slate-400">
-                Ajouter des photos ou vidéos
+                Add photos or videos
               </span>
               <input
                 type="file"
@@ -312,7 +311,7 @@ export function ReportPage() {
               />
             </label>
 
-            {/* Grille de previews */}
+            {/* Preview grid */}
             {mediaItems.length > 0 && (
               <div className="mt-3 grid grid-cols-3 gap-2">
                 {mediaItems.map((item, idx) => (
@@ -334,16 +333,16 @@ export function ReportPage() {
                         playsInline
                       />
                     )}
-                    {/* Bouton de suppression */}
+                    {/* Remove button */}
                     <button
                       type="button"
                       onClick={() => removeMedia(idx)}
                       className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-abyss-950/80 text-slate-300 transition hover:bg-coral-500/80 hover:text-white"
-                      aria-label={`Supprimer ${item.name}`}
+                      aria-label={`Remove ${item.name}`}
                     >
                       <span aria-hidden className="text-[10px] font-bold leading-none">✕</span>
                     </button>
-                    {/* Badge vidéo */}
+                    {/* Video badge */}
                     {item.kind === "video" && (
                       <span className="absolute bottom-1 left-1 rounded bg-abyss-950/70 px-1 py-0.5 text-[9px] font-medium text-lagoon-400">
                         VID
@@ -355,14 +354,14 @@ export function ReportPage() {
             )}
           </div>
 
-          {/* ── Erreur de soumission ─────────────────────────── */}
+          {/* Submit error */}
           {submitError ? (
             <p className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-300" role="alert">
               {submitError}
             </p>
           ) : null}
 
-          {/* ── Bouton submit ────────────────────────────────── */}
+          {/* Submit button */}
           <button
             type="submit"
             disabled={isSubmitting || !!landError}
@@ -373,7 +372,7 @@ export function ReportPage() {
                 : "bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 text-abyss-950 shadow-glow hover:from-reef-400 hover:to-lagoon-500",
             ].join(" ")}
           >
-            {isSubmitting ? "Envoi en cours…" : "Soumettre l'observation"}
+            {isSubmitting ? "Submitting…" : "Submit sighting"}
           </button>
         </form>
       </div>
