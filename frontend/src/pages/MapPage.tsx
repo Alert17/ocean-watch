@@ -188,56 +188,6 @@ function WorldMap({ sightings }: { sightings: Sighting[] }) {
   );
 }
 
-// ── FAQ accordion ──────────────────────────────────────────────────────────
-
-const FAQ_ITEMS = [
-  {
-    q: "What is OceanWatch?",
-    a: "OceanWatch is a decentralised citizen-science platform where divers and marine enthusiasts record shark sightings. Each observation is written to the Hedera Consensus Service and rewards contributors with OCEAN tokens.",
-  },
-  {
-    q: "How are sightings verified?",
-    a: "Every reporter must hold a World ID (biometric proof-of-personhood) to prevent duplicate or fake submissions. The sighting data is then hashed and anchored on-chain via Hedera HCS.",
-  },
-  {
-    q: "What do the points on the map represent?",
-    a: "Each red dot is a confirmed shark observation submitted by a World-ID-verified diver. Tap a dot to see the species, date, count, behaviour and the on-chain transaction reference.",
-  },
-  {
-    q: "Are my GPS coordinates shared publicly?",
-    a: "Yes — coordinates are written to a public blockchain ledger. If exact privacy is needed, consider rounding to ~1 km precision before submitting.",
-  },
-] as const;
-
-function FaqAccordion() {
-  const [open, setOpen] = useState<number | null>(null);
-  return (
-    <div className="space-y-2">
-      {FAQ_ITEMS.map((item, i) => (
-        <div
-          key={i}
-          className="rounded-xl border border-lagoon-500/20 bg-abyss-850/60 overflow-hidden"
-        >
-          <button
-            type="button"
-            className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-foam"
-            onClick={() => setOpen(open === i ? null : i)}
-          >
-            {item.q}
-            <span className={["ml-3 shrink-0 text-lagoon-400 transition-transform duration-200", open === i ? "rotate-180" : ""].join(" ")}>
-              ▾
-            </span>
-          </button>
-          {open === i && (
-            <p className="border-t border-lagoon-500/10 px-4 pb-4 pt-3 text-sm text-slate-400 leading-relaxed">
-              {item.a}
-            </p>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // ── Page ───────────────────────────────────────────────────────────────────
 
@@ -247,7 +197,6 @@ export function MapPage() {
   // Filter state (UI only — not yet wired to the indexer query)
   const [dateRange, setDateRange]     = useState<DateRange>("30d");
   const [speciesFilter, setSpeciesFilter] = useState<string>("all");
-  const [showFaq, setShowFaq]         = useState(false);
 
   // Data: use mock sightings (swap for fetchSightings() once indexer is live)
   const allSightings = MOCK_MAP_SIGHTINGS;
@@ -353,19 +302,12 @@ export function MapPage() {
             </button>
             <button
               type="button"
-              onClick={() => setShowFaq((v) => !v)}
-              className={[
-                "flex-1 rounded-2xl border py-3 text-sm font-medium transition",
-                showFaq
-                  ? "border-reef-500/40 bg-reef-500/10 text-reef-300"
-                  : "border-lagoon-500/25 bg-abyss-850/70 text-lagoon-300 hover:border-lagoon-400/40 hover:text-foam",
-              ].join(" ")}
+              onClick={() => navigate("/faq")}
+              className="flex-1 rounded-2xl border border-lagoon-500/25 bg-abyss-850/70 py-3 text-sm font-medium text-lagoon-300 transition hover:border-lagoon-400/40 hover:text-foam"
             >
               FAQ
             </button>
           </div>
-
-          {showFaq && <FaqAccordion />}
         </div>
 
       </div>

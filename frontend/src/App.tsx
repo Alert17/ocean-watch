@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { CongratsPage } from "./pages/Congrats";
+import { FaqPage } from "./pages/FaqPage";
 import { HistoryPage } from "./pages/History";
 import { HomePage } from "./pages/Home";
 import { MapPage } from "./pages/MapPage";
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/report" element={<ReportPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/map" element={<MapPage />} />
+          <Route path="/faq" element={<FaqPage />} />
           <Route path="/my-account" element={<MyAccountPage />} />
           <Route path="/world-id" element={<WorldIdPage />} />
           <Route path="/congrats" element={<CongratsPage />} />
