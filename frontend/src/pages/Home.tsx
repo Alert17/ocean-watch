@@ -65,6 +65,12 @@ export function HomePage() {
         </section>
 
         <div className="grid gap-3">
+        <Link
+            to="/history"
+            className="rounded-2xl border border-lagoon-500/30 bg-abyss-800/60 px-5 py-4 text-center font-medium text-foam transition hover:border-reef-400/40 hover:bg-abyss-800"
+          >
+            View all data
+          </Link>
           <Link
             to="/report"
             className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 px-5 py-4 font-semibold text-abyss-950 shadow-glow transition hover:from-reef-400 hover:to-lagoon-500"
@@ -73,12 +79,6 @@ export function HomePage() {
             <span aria-hidden className="text-xl">
               →
             </span>
-          </Link>
-          <Link
-            to="/history"
-            className="rounded-2xl border border-lagoon-500/30 bg-abyss-800/60 px-5 py-4 text-center font-medium text-foam transition hover:border-reef-400/40 hover:bg-abyss-800"
-          >
-            View my history
           </Link>
         </div>
 
