@@ -1,3 +1,4 @@
+import { Behavior, Species } from "../graphql/enums";
 import type { Sighting } from "../graphql/types";
 
 export function initialMockSightings(): Sighting[] {
@@ -8,9 +9,9 @@ export function initialMockSightings(): Sighting[] {
       id: "mock-s1",
       latitude: 20.45,
       longitude: -86.93,
-      species: "nurse_shark",
+      species: Species.NURSE_SHARK,
       count: 2,
-      behavior: "resting",
+      behavior: Behavior.RESTING,
       observedAt: iso(new Date(now.getTime() - 86400000 * 2)),
       createdAt: iso(new Date(now.getTime() - 86400000 * 2)),
       comment: "Along the wall, visibility ~20 m.",
@@ -23,9 +24,9 @@ export function initialMockSightings(): Sighting[] {
       id: "mock-s2",
       latitude: 20.41,
       longitude: -86.85,
-      species: "caribbean_reef_shark",
+      species: Species.CARIBBEAN_REEF_SHARK,
       count: 1,
-      behavior: "hunting",
+      behavior: Behavior.HUNTING,
       observedAt: iso(new Date(now.getTime() - 86400000 * 5)),
       createdAt: iso(new Date(now.getTime() - 86400000 * 5)),
       comment: null,

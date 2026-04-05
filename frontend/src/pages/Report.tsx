@@ -5,7 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { Layout } from "../components/Layout";
 import { MapPicker, type MapPick } from "../components/MapPicker";
-import { BEHAVIOR_OPTIONS, SPECIES_OPTIONS } from "../constants/fieldbook";
+import {
+  BEHAVIOR_OPTIONS,
+  BEHAVIOR_VALUES,
+  Behavior,
+  SPECIES_OPTIONS,
+  SPECIES_VALUES,
+  Species,
+} from "../constants/fieldbook";
 import { MARINE_ZONES } from "../data/marineZones";
 import { useAuth } from "../hooks/useAuth";
 import { submitSightingToApi } from "../lib/api";
@@ -13,17 +20,14 @@ import { toDatetimeLocalValue } from "../lib/datetime";
 import { SUBMIT_ZONE_LAND_GEOJSON } from "../data/submitZoneLandGeoJSON";
 import { isOnLand } from "../lib/landValidator";
 
-const speciesValues = SPECIES_OPTIONS.map((o) => o.value) as [string, ...string[]];
-const behaviorValues = BEHAVIOR_OPTIONS.map((o) => o.value) as [string, ...string[]];
-
 const formSchema = z
   .object({
     latitude: z.number(),
     longitude: z.number(),
     zoneId: z.string(),
-    species: z.enum(speciesValues),
+    species: z.enum(SPECIES_VALUES),
     count: z.coerce.number().int().min(1).max(99),
-    behavior: z.enum(behaviorValues),
+    behavior: z.enum(BEHAVIOR_VALUES),
     observedAt: z.string().min(1, "Date and time are required"),
     comment: z.string().optional(),
   })
@@ -74,9 +78,9 @@ export function ReportPage() {
       latitude: 0,
       longitude: 0,
       zoneId: "",
-      species: "unknown",
+      species: Species.UNKNOWN,
       count: 1,
-      behavior: "unknown",
+      behavior: Behavior.UNKNOWN,
       observedAt: toDatetimeLocalValue(new Date().toISOString()),
       comment: "",
     },

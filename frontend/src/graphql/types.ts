@@ -1,11 +1,13 @@
+import type { Behavior, Species } from "./enums";
+
 /** Matches indexer `Sighting` type (https://indexer.oceanwatch.xyz/graphql). */
 export type Sighting = {
   id: string;
   latitude: number;
   longitude: number;
-  species: string;
+  species: Species;
   count: number;
-  behavior: string;
+  behavior: Behavior;
   observedAt: string;
   createdAt: string;
   comment: string | null;
@@ -17,8 +19,8 @@ export type Sighting = {
 
 /** Input type `SightingsFilter` on the indexer. */
 export type SightingsFilterInput = {
-  species?: string | null;
-  behavior?: string | null;
+  species?: Species | null;
+  behavior?: Behavior | null;
   wallet?: string | null;
   observedAtGt?: string | null;
   observedAtLt?: string | null;
