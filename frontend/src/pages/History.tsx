@@ -14,15 +14,15 @@ function formatWhen(iso: string): string {
 export function HistoryPage() {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["sightings"],
-    queryFn: fetchSightings,
+    queryFn: () => fetchSightings(),
   });
 
   return (
     <Layout title="History">
       <div className="mt-2 space-y-4">
         <p className="text-sm text-slate-400">
-          Sightings from the indexer (<code className="text-lagoon-400/90">sightings</code> query)
-          — map shows each record at its latitude and longitude.
+          Sightings from the indexer (<code className="text-lagoon-400/90">sightings</code> with
+          pagination) — map shows each record at its latitude and longitude.
         </p>
 
         {isPending ? (

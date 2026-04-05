@@ -1,9 +1,26 @@
 import { http, HttpResponse, passthrough } from "msw";
 import { parse, type OperationDefinitionNode } from "graphql";
-import type { Sighting } from "../graphql/types";
+import type { Sighting, SightingsFilterInput } from "../graphql/types";
 import { initialMockSightings } from "./data";
 
 let mockSightings: Sighting[] = initialMockSightings();
+
+function applySightingsFilter(
+  sightings: Sighting[],
+  filter?: SightingsFilterInput | null,
+): Sighting[] {
+  if (!filter) return sightings;
+  return sightings.filter((s) => {
+    if (filter.species && s.species !== filter.species) return false;
+    if (filter.behavior && s.behavior !== filter.behavior) return false;
+    if (filter.wallet && s.wallet !== filter.wallet) return false;
+    if (filter.observedAtGt && s.observedAt <= filter.observedAtGt) return false;
+    if (filter.observedAtGte && s.observedAt < filter.observedAtGte) return false;
+    if (filter.observedAtLt && s.observedAt >= filter.observedAtLt) return false;
+    if (filter.observedAtLte && s.observedAt > filter.observedAtLte) return false;
+    return true;
+  });
+}
 
 /** Matches `…/graphql`; only same-origin requests are mocked. */
 const GRAPHQL_URL_RE = /https?:\/\/[^/]+\/graphql\/?$/;
@@ -73,7 +90,30 @@ export const handlers = [
     const variables = body.variables ?? {};
 
     if (op === "Sightings") {
-      return gqlJson({ data: { sightings: mockSightings } });
+      const limit = (variables.limit as number | undefined) ?? 100;
+      const offset = (variables.offset as number | undefined) ?? 0;
+      const filter = variables.filter as SightingsFilterInput | null | undefined;
+      const filtered = applySightingsFilter(mockSightings, filter ?? undefined);
+      const items = filtered.slice(offset, offset + limit);
+      return gqlJson({
+        data: {
+          sightings: {
+            items,
+            total: filtered.length,
+            hasMore: offset + limit < filtered.length,
+          },
+        },
+      });
+    }
+
+    if (op === "SightingsByIds") {
+      const ids = variables.ids as string[] | undefined;
+      if (!ids?.length) {
+        return gqlJson({ data: { sightingsByIds: [] } });
+      }
+      const idSet = new Set(ids);
+      const items = mockSightings.filter((s) => idSet.has(s.id));
+      return gqlJson({ data: { sightingsByIds: items } });
     }
 
     if (op === "Sighting") {

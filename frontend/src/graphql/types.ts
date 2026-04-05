@@ -14,3 +14,20 @@ export type Sighting = {
   sequenceNumber: number;
   consensusTimestamp: string;
 };
+
+/** Input type `SightingsFilter` on the indexer. */
+export type SightingsFilterInput = {
+  species?: string | null;
+  behavior?: string | null;
+  wallet?: string | null;
+  observedAtGt?: string | null;
+  observedAtLt?: string | null;
+  observedAtGte?: string | null;
+  observedAtLte?: string | null;
+};
+
+export type SightingsPage = {
+  items: Sighting[];
+  total: number;
+  hasMore: boolean;
+};
