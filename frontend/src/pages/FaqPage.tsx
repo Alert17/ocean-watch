@@ -33,6 +33,27 @@ const FAQ_SECTIONS: { heading: string; items: { q: string; a: string }[] }[] = [
       },
     ],
   },
+  {
+    heading: "The map",
+    items: [
+      {
+        q: "How does the map work?",
+        a: "The map displays every sighting submitted through OceanWatch. Each record is fetched from the OceanWatch indexer (a GraphQL API) and plotted at its reported GPS coordinates. You can narrow what you see using the date-range and species filters above the map.",
+      },
+      {
+        q: "What do the red dots on the map represent?",
+        a: "Each dot is a confirmed shark observation submitted by a World-ID-verified reporter. The colour is uniform for now; future versions may vary colour by species or recency.",
+      },
+      {
+        q: "What information is shown when I tap a dot?",
+        a: "Tapping a marker opens a popup showing: species (or best estimate), observation date, individual count, observed behaviour, the reporter's wallet address, the Hedera sequence number, and the consensus timestamp. A field note is shown if the reporter added one.",
+      },
+      {
+        q: "How do the date and species filters work?",
+        a: "The date filter hides sightings older than the selected window (7 days, 30 days, 3 months, or all time). The species filter restricts markers to a single species. Both filters are applied client-side and update the map and sighting count instantly.",
+      },
+    ],
+  },
 
         {/* ── Back to map ───────────────────────────────────── */}
         <div className="border-t border-lagoon-500/10 pt-4">
