@@ -7,6 +7,7 @@ export enum Species {
   HAMMERHEAD_SHARK = "hammerhead_shark",
   BULL_SHARK = "bull_shark",
   TIGER_SHARK = "tiger_shark",
+  WHALE_SHARK = "whale_shark",
   UNKNOWN = "unknown",
 }
 
