@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BottomNav } from "./BottomNav";
+import { BottomNav, DesktopBurgerNav } from "./BottomNav";
 import { WaveBackdrop } from "./WaveBackdrop";
 
 type Props = {
@@ -11,17 +11,20 @@ export function Layout({ children, title }: Props) {
   return (
     <div className="relative flex min-h-dvh flex-col">
       <WaveBackdrop />
-      <header className="relative z-10 flex flex-col gap-2 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <div className="min-w-0">
-          {title ? (
-            <h1 className="font-display text-2xl font-semibold tracking-tight text-foam">
-              {title}
-            </h1>
-          ) : null}
+      <header className="relative z-10 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <div className="mx-auto flex w-full max-w-lg items-start justify-between gap-3 px-4 pb-2">
+          <div className="min-w-0 flex-1">
+            {title ? (
+              <h1 className="font-display text-2xl font-semibold tracking-tight text-foam">
+                {title}
+              </h1>
+            ) : null}
+          </div>
+          <DesktopBurgerNav />
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto w-full max-w-lg flex-1 px-4 pb-28">
+      <main className="relative z-10 mx-auto w-full max-w-lg flex-1 px-4 pb-28 md:pb-10">
         {children}
       </main>
 
