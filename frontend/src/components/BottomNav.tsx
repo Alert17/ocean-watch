@@ -121,12 +121,12 @@ export function DesktopBurgerNav() {
       {open ? (
         <>
           <div
-            className="fixed inset-0 z-40 bg-abyss-950/50 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[60] bg-abyss-950/50 backdrop-blur-[2px]"
             aria-hidden
             onClick={close}
           />
           <div
-            className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[13rem] rounded-2xl border border-lagoon-500/20 bg-abyss-900/95 py-2 shadow-xl backdrop-blur-md"
+            className="absolute right-0 top-[calc(100%+0.5rem)] z-[70] min-w-[13rem] rounded-2xl border border-lagoon-500/20 bg-abyss-900/95 py-2 shadow-xl backdrop-blur-md"
             role="menu"
             aria-label="Main navigation"
           >
