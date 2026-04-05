@@ -15,7 +15,7 @@ import {
 } from "../constants/fieldbook";
 import { MARINE_ZONES } from "../data/marineZones";
 import { useAuth } from "../hooks/useAuth";
-import { submitSightingToApi } from "../lib/api";
+import { submitSightingToApi, uploadMediaFile } from "../lib/api";
 import { toDatetimeLocalValue } from "../lib/datetime";
 
 const formSchema = z
@@ -36,8 +36,9 @@ const formSchema = z
 
 type FormValues = z.infer<typeof formSchema>;
 
-/** A locally-selected media file ready for preview. */
+/** A locally-selected media file ready for preview and optional IPFS upload. */
 type MediaItem = {
+  file: File;
   preview: string; // Object URL (revoked on removal / unmount)
   name: string;
   kind: "image" | "video";
@@ -105,6 +106,12 @@ export function ReportPage() {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
+      let mediaUrl: string | undefined;
+      if (mediaItems.length > 0) {
+        const { url } = await uploadMediaFile(auth.jwt, mediaItems[0].file);
+        mediaUrl = url;
+      }
+
       await submitSightingToApi(
         {
           latitude: values.latitude,
@@ -114,9 +121,7 @@ export function ReportPage() {
           behavior: values.behavior,
           observedAt: new Date(values.observedAt).toISOString(),
           comment: values.comment || undefined,
-          // TODO: upload files to IPFS and pass the resulting URL here.
-          // Backend accepts an IPFS URL string in `mediaUrl`.
-          mediaUrl: undefined,
+          mediaUrl,
         },
         auth.jwt,
       );
@@ -133,6 +138,7 @@ export function ReportPage() {
   const handleMediaAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     const newItems: MediaItem[] = files.map((file) => ({
+      file,
       preview: URL.createObjectURL(file),
       name: file.name,
       kind: file.type.startsWith("video/") ? "video" : "image",
@@ -277,15 +283,12 @@ export function ReportPage() {
             />
           </label>
 
-          {/* Media section */}
+          {/* Media section — first file is uploaded to IPFS (POST /upload) before sighting submit */}
           <div className="block text-sm">
             <span className="text-slate-400">Photos / videos (optional)</span>
-            {/*
-             * TODO (backend): mediaUrl accepts a single IPFS URL string.
-             * Multi-file upload to IPFS must be implemented separately.
-             * Currently the selected files are only previewed locally and
-             * are NOT sent to the backend.
-             */}
+            <p className="mt-1 text-xs text-slate-600">
+              The first file is sent to IPFS and linked to your report. Extra files are preview only.
+            </p>
 
             {/* File add trigger */}
             <label className="mt-1 flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-lagoon-500/30 bg-abyss-900/60 px-4 py-3 transition hover:border-lagoon-500/50 hover:bg-abyss-900/80">
