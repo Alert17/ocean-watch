@@ -75,6 +75,26 @@ const FAQ_SECTIONS: { heading: string; items: { q: string; a: string }[] }[] = [
       },
     ],
   },
+  {
+    heading: "Contributing",
+    items: [
+      {
+        q: "How can I report a sighting?",
+        a: "Open the Report tab, tap on the Cozumel map to place your marker in the sea, fill in the species, count, behaviour and date fields, optionally attach photos or a note, then hit Submit. You will need a connected Hedera wallet and a verified World ID to send data.",
+      },
+      {
+        q: "What kind of information can I add to a sighting?",
+        a: "Required: GPS position (via map tap), species estimate, individual count, behaviour, and observation date/time. Optional: a free-text field note (depth, visibility, other species nearby) and one or more photos or videos.",
+      },
+      {
+        q: "Why is this useful for researchers and conservation?",
+        a: "A publicly accessible, on-chain dataset means any researcher can query historical sightings without gatekeepers. Long-term trends — seasonal patterns, species richness, behaviour changes near dive sites — become visible as data accumulates. Conservation agencies can use the data to argue for or against the extension of marine protected areas.",
+      },
+    ],
+  },
+];
+
+
 
         {/* ── Back to map ───────────────────────────────────── */}
         <div className="border-t border-lagoon-500/10 pt-4">
