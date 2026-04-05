@@ -6,7 +6,8 @@ const links = [
   { to: "/report", label: "Report", icon: PinIcon },
   { to: "/map", label: "Map", icon: MapIcon },
   { to: "/history", label: "History", icon: LogIcon },
-  { to: "/donate", label: "Donate", icon: HeartIcon },
+  { to: "/donate", label: "Donate", icon: HeartIcon }];
+
 const navEntries = [
   { to: "/", label: "Home", icon: HomeIcon, end: true as const },
   { to: "/report", label: "Report", icon: PinIcon, end: false as const },
