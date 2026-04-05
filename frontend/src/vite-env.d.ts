@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_WALLETCONNECT_PROJECT_ID?: string;
   /** testnet | mainnet | previewnet | devnet (default: testnet) */
   readonly VITE_HEDERA_NETWORK?: string;
+  /** Hedera treasury account shown on /donate for manual transfers */
+  readonly VITE_TREASURY_ACCOUNT_ID?: string;
 }
 
 interface ImportMeta {

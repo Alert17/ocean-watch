@@ -188,7 +188,7 @@ export function ReportPage() {
               <span className="text-xs text-slate-600">No zone selected</span>
             )}
           </div>
-          {/* Leaflet map — optional zone overlays; no hard polygon constraints */}
+          {/* Leaflet map */}
           <MapPicker
             zones={[]}
             value={pickFromForm(lat, lng, zoneId)}
@@ -196,7 +196,7 @@ export function ReportPage() {
           />
         </div>
 
-        {/* ── Form ─────────────────────────────────────────── */}
+        {/* Form */}
         <form onSubmit={onSubmit} className="space-y-4">
           <input type="hidden" {...register("latitude", { valueAsNumber: true })} />
           <input type="hidden" {...register("longitude", { valueAsNumber: true })} />
@@ -273,7 +273,7 @@ export function ReportPage() {
             />
           </label>
 
-          {/* ── Media section ───────────────────────────────── */}
+          {/* Media section */}
           <div className="block text-sm">
             <span className="text-slate-400">Photos / videos (optional)</span>
             {/*
@@ -341,14 +341,14 @@ export function ReportPage() {
             )}
           </div>
 
-          {/* ── Submit error ─────────────────────────────────── */}
+          {/* Submit error */}
           {submitError ? (
             <p className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-4 py-3 text-sm text-coral-300" role="alert">
               {submitError}
             </p>
           ) : null}
 
-          {/* ── Submit button ─────────────────────────────────── */}
+          {/* Submit button */}
           <button
             type="submit"
             disabled={isSubmitting}

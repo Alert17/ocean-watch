@@ -72,7 +72,7 @@ export function CongratsPage() {
             Thank you for helping protect sharks around{" "}
             <strong className="text-foam">Cozumel</strong>.
             <br />
-            Your report will be picked up by the Ocean Watch indexer.
+            Your report will appear in the Ocean Watch indexer.
           </p>
         </div>
 
