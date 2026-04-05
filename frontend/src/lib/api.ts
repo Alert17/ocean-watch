@@ -3,6 +3,8 @@
  * See /API.md for full contract documentation.
  */
 
+import type { Behavior, Species } from "../graphql/enums";
+
 const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "https://api.oceanwatch.xyz";
 
 // ── Types ─────────────────────────────────────────────────────────────────
@@ -35,9 +37,9 @@ export interface VerifyWorldIdResponse {
 export interface SightingPayload {
   latitude: number;
   longitude: number;
-  species: string;
+  species: Species;
   count: number;
-  behavior: string;
+  behavior: Behavior;
   observedAt: string; // ISO-8601
   comment?: string;
   mediaUrl?: string;
@@ -61,9 +63,9 @@ export interface SightingResponse {
     id: string;
     latitude: number;
     longitude: number;
-    species: string;
+    species: Species;
     count: number;
-    behavior: string;
+    behavior: Behavior;
     observedAt: string;
     createdAt: string;
     wallet: string;

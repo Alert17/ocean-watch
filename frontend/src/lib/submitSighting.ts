@@ -13,14 +13,16 @@
  *     a placeholder value is used until wallet connect is added.
  */
 
+import type { Behavior, Species } from "../graphql/enums";
+
 const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
 
 export interface SightingPayload {
   latitude: number;
   longitude: number;
-  species: string;
+  species: Species;
   count: number;
-  behavior: string;
+  behavior: Behavior;
   observedAt: string; // ISO-8601
   comment?: string;
   /** TODO: upload file(s) to IPFS, then pass the resulting URL here. */
