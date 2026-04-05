@@ -10,6 +10,8 @@ import { MARINE_ZONES } from "../data/marineZones";
 import { useAuth } from "../hooks/useAuth";
 import { submitSightingToApi } from "../lib/api";
 import { toDatetimeLocalValue } from "../lib/datetime";
+import { SUBMIT_ZONE_LAND_GEOJSON } from "../data/submitZoneLandGeoJSON";
+import { isOnLand } from "../lib/landValidator";
 
 const speciesValues = SPECIES_OPTIONS.map((o) => o.value) as [string, ...string[]];
 const behaviorValues = BEHAVIOR_OPTIONS.map((o) => o.value) as [string, ...string[]];
@@ -89,11 +91,18 @@ export function ReportPage() {
     setValue("latitude", pick.lat, { shouldValidate: true });
     setValue("longitude", pick.lng, { shouldValidate: true });
     setValue("zoneId", pick.zoneId ?? "", { shouldValidate: true });
+    if (isOnLand(pick.lng, pick.lat, SUBMIT_ZONE_LAND_GEOJSON.features)) {
+      setLandError("Ce point est sur la terre. Placez le marqueur en mer.");
+    } else {
+      setLandError(null);
+    }
   };
 
+  const [landError, setLandError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const onSubmit = handleSubmit(async (values) => {
+    if (landError) return;
     if (!auth.jwt) {
       navigate("/my-account", { replace: true });
       return;
@@ -203,7 +212,11 @@ export function ReportPage() {
           <input type="hidden" {...register("longitude", { valueAsNumber: true })} />
           <input type="hidden" {...register("zoneId")} />
 
-          {errors.latitude ? (
+          {landError ? (
+            <p className="rounded-xl border border-coral-500/30 bg-coral-500/10 px-3 py-2.5 text-sm text-coral-300" role="alert">
+              {landError}
+            </p>
+          ) : errors.latitude ? (
             <p className="text-sm text-coral-400" role="alert">
               {errors.latitude.message}
             </p>
@@ -352,11 +365,11 @@ export function ReportPage() {
           {/* ── Bouton submit ────────────────────────────────── */}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!landError}
             className={[
               "w-full rounded-2xl py-3.5 font-semibold transition",
-              isSubmitting
-                ? "cursor-wait bg-abyss-800 text-slate-500"
+              isSubmitting || landError
+                ? "cursor-not-allowed bg-abyss-800 text-slate-500"
                 : "bg-gradient-to-r from-reef-500/90 to-lagoon-600/90 text-abyss-950 shadow-glow hover:from-reef-400 hover:to-lagoon-500",
             ].join(" ")}
           >
