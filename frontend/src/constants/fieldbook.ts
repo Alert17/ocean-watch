@@ -15,6 +15,7 @@ export const SPECIES_VALUES = [
   Species.HAMMERHEAD_SHARK,
   Species.BULL_SHARK,
   Species.TIGER_SHARK,
+  Species.WHALE_SHARK,
   Species.UNKNOWN,
 ] as const;
 
@@ -35,6 +36,7 @@ const SPECIES_LABELS: Record<Species, string> = {
   [Species.HAMMERHEAD_SHARK]: "Hammerhead shark",
   [Species.BULL_SHARK]: "Bull shark",
   [Species.TIGER_SHARK]: "Tiger shark",
+  [Species.WHALE_SHARK]: "Whale shark",
   [Species.UNKNOWN]: "Unidentified species",
 };
 
