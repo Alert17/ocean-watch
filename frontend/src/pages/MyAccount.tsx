@@ -166,7 +166,7 @@ export function MyAccountPage() {
               onClick={() => void handleMockWorldId()}
               className="w-full rounded-2xl border border-dashed border-lagoon-500/30 bg-abyss-900/60 py-3 text-sm font-medium text-lagoon-400/70 transition hover:border-lagoon-500/60 hover:text-lagoon-300"
             >
-              Mock World ID (dev only)
+              ⚙ Mock World ID (dev only)
             </button>
           )}
 
